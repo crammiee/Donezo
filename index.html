@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Offline Kanban Board</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+    <header>
+        <h1>Offline Kanban Board</h1>
+    </header>
+
+    <!-- task creation -->
+    <section class="task-input-section">
+        <input 
+            type="text" 
+            id="task-title" 
+            placeholder="Enter task title..." 
+            aria-label="Task Title"
+        >
+        <button id="add-task-btn">Add Task</button>
+    </section>
+
+    <!-- kanban board -->
+    <main class="board">
+
+        <section class="column" id="todo-column">
+            <h2>To Do</h2>
+            <div class="task-list" id="todo-list"></div>
+        </section>
+
+        <section class="column" id="doing-column">
+            <h2>Doing</h2>
+            <div class="task-list" id="doing-list"></div>
+        </section>
+
+        <section class="column" id="done-column">
+            <h2>Done</h2>
+            <div class="task-list" id="done-list"></div>
+        </section>
+
+    </main>
+
+    <!-- scripts here -->
+    <script src="js/main.js"></script>
+
+</body>
+</html>

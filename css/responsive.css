@@ -1,0 +1,24 @@
+@media (max-width: 768px) {
+
+    .board {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .column {
+        width: 90%;
+    }
+
+    .task-input-section {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .task-input-section input {
+        width: 90%;
+    }
+
+    .task-input-section button {
+        width: 90%;
+    }
+}
