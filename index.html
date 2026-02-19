@@ -1,62 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Donezo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donezo</title>
+  <link rel="stylesheet" href="styles/base.css" />
+  <link rel="stylesheet" href="components/column/column.css" />
 </head>
 <body>
 
-    <header class="header">
-        <span class="header__logo">Donezo<span class="header__logo-dot">.</span></span>
-    </header>
+  <header class="header">
+    <span class="header__logo">Donezo<span class="header__logo-dot">.</span></span>
+  </header>
 
-    <main class="board" id="BOARD" role="main">
-        <div class="column column--todo" id="COL_TODO" role="region" aria-label="To Do column"></div>
-        <div class="column column--doing" id="COL_DOING" role="region" aria-label="Doing column"></div>
-        <div class="column column--done" id="COL_DONE" role="region" aria-label="Done column"></div>
-    </main>
+  <main class="board" id="BOARD" role="main">
+    <div class="column column--todo"  id="COL_TODO"  role="region" aria-label="To Do column"></div>
+    <div class="column column--doing" id="COL_DOING" role="region" aria-label="Doing column"></div>
+    <div class="column column--done"  id="COL_DONE"  role="region" aria-label="Done column"></div>
+  </main>
 
-    <div class="notification-container" id="NOTIFICATION_CONTAINER" aria-live="polite"></div>
-
-    <button
-        class="help-button"
-        id="HELP_BUTTON"
-        aria-label="Keyboard shortcuts"
-        aria-expanded="false"
-        title="Keyboard shortcuts"
-    >?</button>
-
-    <div
-        class="help-panel"
-        id="HELP_PANEL"
-        role="dialog"
-        aria-label="Keyboard shortcuts"
-        aria-hidden="true"
-    >
-        <h3 class="help-panel__title">Keyboard Shortcuts</h3>
-        <div class="help-panel__row">
-        <span>Add task</span><kbd class="help-panel__kbd">Ctrl+Enter</kbd>
-        </div>
-        <div class="help-panel__row">
-        <span>Save edit</span><kbd class="help-panel__kbd">Enter</kbd>
-        </div>
-        <div class="help-panel__row">
-        <span>Cancel</span><kbd class="help-panel__kbd">Esc</kbd>
-        </div>
-        <div class="help-panel__row">
-        <span>Move left</span><kbd class="help-panel__kbd">←</kbd>
-        </div>
-        <div class="help-panel__row">
-        <span>Move right</span><kbd class="help-panel__kbd">→</kbd>
-        </div>
-        <div class="help-panel__row">
-        <span>Delete task</span><kbd class="help-panel__kbd">Del</kbd>
-        </div>
-        <div class="help-panel__row">
-        <span>Edit task</span><kbd class="help-panel__kbd">E</kbd>
-        </div>
-    </div>
-
+  <script type="module" src="pages/board/board.js"></script>
 </body>
 </html>
