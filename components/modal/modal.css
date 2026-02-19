@@ -88,3 +88,33 @@
 .modal__btn--cancel:hover {
   border-color: var(--color-text-muted);
 }
+
+.help__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.help__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.help__key {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.8rem;
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  min-width: 3.5rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.help__action {
+  color: var(--color-text-muted);
+}
