@@ -1,4 +1,4 @@
-const COLUMNS = [
+export const COLUMNS = [
   {
     id: 'todo',
     label: 'To Do',
@@ -7,7 +7,7 @@ const COLUMNS = [
   {
     id: 'doing',
     label: 'Doing',
-    emptyText: 'Tasks you\'re working on\nappear here.',
+    emptyText: "Tasks you're working on\nappear here.",
   },
   {
     id: 'done',
@@ -31,18 +31,6 @@ function createHeader() {
   $header.appendChild($title);
   $header.appendChild($subtitle);
   return $header;
-}
-
-function createColumn(column) {
-  const $col = document.createElement('div');
-  $col.className = 'column';
-  $col.dataset.status = column.id;
-
-  $col.appendChild(createColumnHeader(column));
-  $col.appendChild(createEmptyState(column.emptyText));
-  $col.appendChild(createAddButton(column.id));
-
-  return $col;
 }
 
 function createColumnHeader(column) {
@@ -77,7 +65,19 @@ function createAddButton(status) {
   return $btn;
 }
 
-function createHelpButton() {
+export function createColumn(column) {
+  const $col = document.createElement('div');
+  $col.className = 'column';
+  $col.dataset.status = column.id;
+
+  $col.appendChild(createColumnHeader(column));
+  $col.appendChild(createEmptyState(column.emptyText));
+  $col.appendChild(createAddButton(column.id));
+
+  return $col;
+}
+
+export function createHelpButton() {
   const $btn = document.createElement('button');
   $btn.className = 'board__help-btn';
   $btn.id = 'HELP_BTN';
@@ -99,4 +99,15 @@ export function createBoard() {
   $board.appendChild(createHelpButton());
 
   return $board;
+}
+
+export function getColumnEl(status) {
+  return document.querySelector(`.column[data-status="${status}"]`);
+}
+
+export function updateColumnCount(status) {
+  const $col = getColumnEl(status);
+  const count = $col.querySelectorAll('.card').length;
+  $col.querySelector('.column__count').textContent = count;
+  $col.querySelector('.column__empty').style.display = count === 0 ? 'block' : 'none';
 }
