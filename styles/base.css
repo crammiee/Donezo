@@ -1,0 +1,37 @@
+/* main variables */
+:root {
+  --color-bg:           #0f0f13;
+  --color-surface:      #1a1a24;
+  --color-surface-alt:  #22222f;
+  --color-border:       #2e2e3f;
+  --color-accent:       #7c6aff;
+  --color-accent-light: #a78bfa;
+  --color-danger:       #f43f5e;
+  --color-success:      #10b981;
+  --color-warn:         #f59e0b;
+  --color-text:         #e2e2f0;
+  --color-muted:        #6b6b8a;
+  --color-col-todo:     #7c6aff;
+  --color-col-doing:    #f59e0b;
+  --color-col-done:     #10b981;
+  --radius-sm:          6px;
+  --radius-md:          10px;
+  --breakpoint-mobile:  640px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
