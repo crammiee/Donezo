@@ -1,24 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Donezo</title>
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="components/column/column.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donezo</title>
 
-  <header class="header">
-    <span class="header__logo">Donezo<span class="header__logo-dot">.</span></span>
-  </header>
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="components/modal/modal.css" />
+    <link rel="stylesheet" href="components/card/card.css" />
+    <link rel="stylesheet" href="pages/board/board.css" />
+  </head>
+  <body>
+    <div id="APP"></div>
 
-  <main class="board" id="BOARD" role="main">
-    <div class="column column--todo"  id="COL_TODO"  role="region" aria-label="To Do column"></div>
-    <div class="column column--doing" id="COL_DOING" role="region" aria-label="Doing column"></div>
-    <div class="column column--done"  id="COL_DONE"  role="region" aria-label="Done column"></div>
-  </main>
-
-  <script type="module" src="pages/board/board.js"></script>
-</body>
+    <script type="module" src="pages/board/board.js"></script>
+  </body>
 </html>
