@@ -1,9 +1,9 @@
 import { Card } from '../../components/card/card.js';
 import { Modal } from '../../components/modal/modal.js';
 import { loadTasks, addTask, updateTask, deleteTask } from '../../services/storage-service.js';
-import { COLUMNS, getColumnEl, updateColumnCount } from './board-dom.js';
+import { getColumnEl, updateColumnCount } from './board-dom.js';
 
-const COLUMN_ORDER = COLUMNS.map((col) => col.id);
+const COLUMN_ORDER = ['todo', 'doing', 'done'];
 
 const modal = new Modal();
 
@@ -98,14 +98,13 @@ function loadAndRenderTasks() {
 }
 
 export function initBoard() {
-  modal.render();
+  modal.init();
   loadAndRenderTasks();
 
   document.addEventListener('click', handleAddButtonClick);
   document.addEventListener('keydown', handleBoardKeydown);
 
-  const $helpBtn = document.getElementById('HELP_BTN');
-  $helpBtn.addEventListener('click', handleHelpOpen);
+  document.getElementById('HELP_BTN').addEventListener('click', handleHelpOpen);
 }
 
 function handleHelpOpen() {

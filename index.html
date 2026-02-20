@@ -11,7 +11,77 @@
     <link rel="stylesheet" href="pages/board/board.css" />
   </head>
   <body>
-    <div id="APP"></div>
+
+    <div class="board">
+      <div class="board__header">
+        <h1 class="board__title">Donezo</h1>
+        <p class="board__subtitle">Stay organized. Finish fast.</p>
+      </div>
+
+      <div class="board__columns">
+
+        <div class="column" data-status="todo">
+          <div class="column__header">
+            <span class="column__title">To Do</span>
+            <span class="column__count">0</span>
+          </div>
+          <p class="column__empty">No tasks yet. Add one to get started.</p>
+          <button class="column__add-btn" data-status="todo">+ new task</button>
+        </div>
+
+        <div class="column" data-status="doing">
+          <div class="column__header">
+            <span class="column__title">Doing</span>
+            <span class="column__count">0</span>
+          </div>
+          <p class="column__empty">Tasks you're working on appear here.</p>
+          <button class="column__add-btn" data-status="doing">+ new task</button>
+        </div>
+
+        <div class="column" data-status="done">
+          <div class="column__header">
+            <span class="column__title">Done</span>
+            <span class="column__count">0</span>
+          </div>
+          <p class="column__empty">Completed tasks appear here. Nice progress!</p>
+          <button class="column__add-btn" data-status="done">+ new task</button>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="board__help-btn" id="HELP_BTN" aria-label="Keyboard shortcuts help">?</button>
+
+    <!-- Modal is static structure, injected once, controlled by modal.js -->
+    <div class="modal-overlay modal-overlay--hidden" id="TASK_MODAL">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2 class="modal__title" id="MODAL_TITLE">New Task</h2>
+
+        <div class="modal__field">
+          <label class="modal__label" for="MODAL_TITLE_INPUT">Title</label>
+          <input class="modal__input" id="MODAL_TITLE_INPUT" type="text" placeholder="Task title" />
+        </div>
+
+        <div class="modal__field">
+          <label class="modal__label" for="MODAL_DESC_INPUT">Description</label>
+          <textarea class="modal__input modal__textarea" id="MODAL_DESC_INPUT" placeholder="Optional description"></textarea>
+        </div>
+
+        <div class="modal__field">
+          <label class="modal__label" for="MODAL_STATUS_SELECT">Status</label>
+          <select class="modal__input" id="MODAL_STATUS_SELECT">
+            <option value="todo">To Do</option>
+            <option value="doing">Doing</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+
+        <div class="modal__actions">
+          <button class="modal__btn modal__btn--cancel" id="MODAL_CANCEL">Cancel</button>
+          <button class="modal__btn modal__btn--confirm" id="MODAL_CONFIRM">Save</button>
+        </div>
+      </div>
+    </div>
 
     <script type="module" src="pages/board/board.js"></script>
   </body>
