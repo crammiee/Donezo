@@ -28,49 +28,38 @@ export class Card {
   }
 
   createTitle() {
-    const $title = document.createElement('p');
-    $title.className = 'card__title';
-    $title.textContent = this.title;
-    return $title;
+    const $p = document.createElement('p');
+    $p.className = 'card__title';
+    $p.textContent = this.title;
+    return $p;
   }
 
   createDescription() {
-    const $desc = document.createElement('p');
-    $desc.className = 'card__description';
-    $desc.textContent = this.description;
-    return $desc;
+    const $p = document.createElement('p');
+    $p.className = 'card__description';
+    $p.textContent = this.description;
+    return $p;
   }
 
   createActions() {
-    const $actions = document.createElement('div');
-    $actions.className = 'card__actions';
-    $actions.appendChild(this.createEditButton());
-    $actions.appendChild(this.createDeleteButton());
-    return $actions;
+    const $div = document.createElement('div');
+    $div.className = 'card__actions';
+    $div.appendChild(this.createButton('edit', 'card__btn--edit'));
+    $div.appendChild(this.createButton('delete', 'card__btn--delete'));
+    return $div;
   }
 
-  createEditButton() {
+  createButton(label, modifier) {
     const $btn = document.createElement('button');
-    $btn.className = 'card__btn card__btn--edit';
-    $btn.textContent = 'edit';
-    $btn.setAttribute('tabindex', '-1');
-    return $btn;
-  }
-
-  createDeleteButton() {
-    const $btn = document.createElement('button');
-    $btn.className = 'card__btn card__btn--delete';
-    $btn.textContent = 'delete';
+    $btn.className = `card__btn ${modifier}`;
+    $btn.textContent = label;
     $btn.setAttribute('tabindex', '-1');
     return $btn;
   }
 
   attachEventListeners() {
-    const $editBtn = this.$element.querySelector('.card__btn--edit');
-    const $deleteBtn = this.$element.querySelector('.card__btn--delete');
-
-    $editBtn.addEventListener('click', () => this.onEdit(this));
-    $deleteBtn.addEventListener('click', () => this.onDelete(this));
+    this.$element.querySelector('.card__btn--edit').addEventListener('click', () => this.onEdit(this));
+    this.$element.querySelector('.card__btn--delete').addEventListener('click', () => this.onDelete(this));
     this.$element.addEventListener('keydown', (e) => this.handleKeydown(e));
   }
 
