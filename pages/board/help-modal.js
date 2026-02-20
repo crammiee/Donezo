@@ -1,3 +1,5 @@
+import { createElement } from '../../utils/dom-utils.js';
+
 const SHORTCUTS = [
   { key: 'Enter', action: 'Add a new task (defaults to To Do)' },
   { key: 'Tab', action: 'Navigate between elements' },
@@ -7,64 +9,37 @@ const SHORTCUTS = [
 ];
 
 function createHelpOverlay() {
-  const $overlay = document.createElement('div');
-  $overlay.className = 'modal-overlay';
+  const $overlay = createElement('div', 'modal-overlay');
   $overlay.id = 'HELP_MODAL';
   $overlay.appendChild(createHelpContent($overlay));
   return $overlay;
 }
 
 function createHelpContent($overlay) {
-  const $modal = document.createElement('div');
-  $modal.className = 'modal';
-
-  $modal.appendChild(createTitle());
+  const $modal = createElement('div', 'modal');
+  $modal.appendChild(createElement('h2', 'modal__title', 'Keyboard Shortcuts'));
   $modal.appendChild(createShortcutList());
   $modal.appendChild(createCloseButton($overlay));
-
   return $modal;
 }
 
-function createTitle() {
-  const $title = document.createElement('h2');
-  $title.className = 'modal__title';
-  $title.textContent = 'Keyboard Shortcuts';
-  return $title;
-}
-
 function createShortcutList() {
-  const $list = document.createElement('ul');
-  $list.className = 'help__list';
+  const $list = createElement('ul', 'help__list');
   SHORTCUTS.forEach((shortcut) => $list.appendChild(createShortcutItem(shortcut)));
   return $list;
 }
 
 function createShortcutItem({ key, action }) {
-  const $item = document.createElement('li');
-  $item.className = 'help__item';
-
-  const $key = document.createElement('kbd');
-  $key.className = 'help__key';
-  $key.textContent = key;
-
-  const $action = document.createElement('span');
-  $action.className = 'help__action';
-  $action.textContent = action;
-
-  $item.appendChild($key);
-  $item.appendChild($action);
+  const $item = createElement('li', 'help__item');
+  $item.appendChild(createElement('kbd', 'help__key', key));
+  $item.appendChild(createElement('span', 'help__action', action));
   return $item;
 }
 
 function createCloseButton($overlay) {
-  const $actions = document.createElement('div');
-  $actions.className = 'modal__actions';
-
-  const $btn = document.createElement('button');
-  $btn.className = 'modal__btn modal__btn--confirm';
-  $btn.textContent = 'Got it';
+  const $actions = createElement('div', 'modal__actions');
+  const $btn = createElement('button', 'modal__btn modal__btn--confirm', 'Got it');
   $btn.addEventListener('click', () => $overlay.remove());
-
   $actions.appendChild($btn);
   return $actions;
 }

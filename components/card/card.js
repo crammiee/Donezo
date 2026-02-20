@@ -1,3 +1,5 @@
+import { createElement } from '../../utils/dom-utils.js';
+
 export class Card {
   constructor({ id, title, description, status }) {
     this.id = id;
@@ -14,8 +16,7 @@ export class Card {
   }
 
   createElement() {
-    const $card = document.createElement('div');
-    $card.className = 'card';
+    const $card = createElement('div', 'card');
     $card.dataset.id = this.id;
     $card.setAttribute('tabindex', '0');
     $card.setAttribute('aria-label', `Task: ${this.title}`);
@@ -28,31 +29,22 @@ export class Card {
   }
 
   createTitle() {
-    const $p = document.createElement('p');
-    $p.className = 'card__title';
-    $p.textContent = this.title;
-    return $p;
+    return createElement('p', 'card__title', this.title);
   }
 
   createDescription() {
-    const $p = document.createElement('p');
-    $p.className = 'card__description';
-    $p.textContent = this.description;
-    return $p;
+    return createElement('p', 'card__description', this.description);
   }
 
   createActions() {
-    const $div = document.createElement('div');
-    $div.className = 'card__actions';
-    $div.appendChild(this.createButton('edit', 'card__btn--edit'));
-    $div.appendChild(this.createButton('delete', 'card__btn--delete'));
+    const $div = createElement('div', 'card__actions');
+    $div.appendChild(this.createButton('edit', 'card__btn card__btn--edit'));
+    $div.appendChild(this.createButton('delete', 'card__btn card__btn--delete'));
     return $div;
   }
 
-  createButton(label, modifier) {
-    const $btn = document.createElement('button');
-    $btn.className = `card__btn ${modifier}`;
-    $btn.textContent = label;
+  createButton(label, className) {
+    const $btn = createElement('button', className, label);
     $btn.setAttribute('tabindex', '-1');
     return $btn;
   }
