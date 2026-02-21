@@ -1,3 +1,5 @@
+import { trapFocus } from '../../utils/dom-utils.js';
+
 export class DeleteModal {
   constructor() {
     this.$overlay = document.getElementById('DELETE_MODAL');
@@ -10,24 +12,26 @@ export class DeleteModal {
   init() {
     this.$cancelBtn.addEventListener('click', () => this.close());
     this.$confirmBtn.addEventListener('click', () => this.handleConfirm());
+    this.$overlay.addEventListener('click', (e) => this.handleOverlayClick(e));
+    this.$overlay.addEventListener('keydown', (e) => this.handleKeydown(e));
+  }
 
-    this.$overlay.addEventListener('click', (e) => {
-      if (e.target === this.$overlay) this.close();
-    });
+  handleOverlayClick(e) {
+    if (e.target === this.$overlay) this.close();
+  }
 
-    this.$overlay.addEventListener('keydown', (e) => {
-			if (e.key === 'Escape') {
-				this.close();
-				return;
-			}
+  handleKeydown(e) {
+    if (e.key === 'Escape') {
+      this.close();
+      return;
+    }
 
-			if (e.key === 'Enter') {
-				this.handleConfirm();
-				return;
-			}
+    if (e.key === 'Enter') {
+      this.handleConfirm();
+      return;
+    }
 
-			this.trapFocus(e);
-		});
+    trapFocus(e, this.$overlay);
   }
 
   handleConfirm() {
@@ -35,46 +39,13 @@ export class DeleteModal {
     this.close();
   }
 
-	open(cardTitle) {
-		if (this.$message) {
-			this.$message.textContent = `Are you sure you want to delete "${cardTitle}"?`;
-		}
-
-		this.$overlay.classList.remove('modal-overlay--hidden');
-		this.$overlay.setAttribute('tabindex', '-1');
-		this.$overlay.focus();
-		this.$confirmBtn.focus();
-	}
+  open(cardTitle) {
+    this.$message.textContent = `Are you sure you want to delete "${cardTitle}"?`;
+    this.$overlay.classList.remove('modal-overlay--hidden');
+    this.$confirmBtn.focus();
+  }
 
   close() {
     this.$overlay.classList.add('modal-overlay--hidden');
   }
-
-	getFocusableElements() {
-		return this.$overlay.querySelectorAll(
-			'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-		);
-	}
-
-	trapFocus(e) {
-		if (e.key !== 'Tab') return;
-
-		const focusable = this.getFocusableElements();
-		if (!focusable.length) return;
-
-		const first = focusable[0];
-		const last = focusable[focusable.length - 1];
-
-		if (e.shiftKey) {
-			if (document.activeElement === first) {
-				e.preventDefault();
-				last.focus();
-			}
-		} else {
-			if (document.activeElement === last) {
-				e.preventDefault();
-				first.focus();
-			}
-		}
-	}
 }
