@@ -1,4 +1,6 @@
-import { createElement } from '../../utils/dom-utils.js';
+import { loadTemplate, createElement } from '../../utils/dom-utils.js';
+
+const TEMPLATE_PATH = '/components/card/card.html';
 
 export class Card {
   constructor({ id, title, description, status }) {
@@ -9,56 +11,18 @@ export class Card {
     this.$element = null;
   }
 
-  render($container) {
-    this.$element = this.createElement();
+  async render($container) {
+    this.$element = await loadTemplate(TEMPLATE_PATH);
+    this.populate();
     $container.insertBefore(this.$element, $container.querySelector('.column__add-btn'));
     this.attachEventListeners();
   }
 
-  createElement() {
-    const $card = createElement('div', 'card');
-    $card.dataset.id = this.id;
-    $card.setAttribute('tabindex', '0');
-    $card.setAttribute('aria-label', `Task: ${this.title}`);
-
-    $card.appendChild(this.createTitle());
-    $card.appendChild(this.createDescription());
-    $card.appendChild(this.createActions());
-
-    return $card;
-  }
-
-  createTitle() {
-    return createElement('p', 'card__title', this.title);
-  }
-
-  createDescription() {
-    return createElement('p', 'card__description', this.description);
-  }
-
-  createActions() {
-    const $div = createElement('div', 'card__actions');
-    $div.appendChild(this.createButton('edit', 'card__btn card__btn--edit'));
-    $div.appendChild(this.createButton('delete', 'card__btn card__btn--delete'));
-    return $div;
-  }
-
-  createButton(label, className) {
-    const $btn = createElement('button', className, label);
-    $btn.setAttribute('tabindex', '-1');
-    return $btn;
-  }
-
-  focusSibling(direction) {
-    const column = this.$element.closest('.column');
-    const cards = Array.from(column.querySelectorAll('.card'));
-
-    const currentIndex = cards.indexOf(this.$element);
-    const nextIndex = currentIndex + direction;
-
-    if (nextIndex < 0 || nextIndex >= cards.length) return;
-
-    cards[nextIndex].focus();
+  populate() {
+    this.$element.dataset.id = this.id;
+    this.$element.setAttribute('aria-label', `Task: ${this.title}`);
+    this.$element.querySelector('.card__title').textContent = this.title;
+    this.$element.querySelector('.card__description').textContent = this.description;
   }
 
   attachEventListeners() {
@@ -67,21 +31,21 @@ export class Card {
     this.$element.addEventListener('keydown', (e) => this.handleKeydown(e));
   }
 
+  focusSibling(direction) {
+    const $col = this.$element.closest('.column');
+    const cards = Array.from($col.querySelectorAll('.card'));
+    const nextIndex = cards.indexOf(this.$element) + direction;
+    if (nextIndex < 0 || nextIndex >= cards.length) return;
+    cards[nextIndex].focus();
+  }
+
   handleKeydown(e) {
     if (e.key === 'Delete') this.onDelete(this);
     if (e.key === 'Enter') this.onEdit(this);
     if (e.key === 'ArrowLeft') this.onMove(this, -1);
     if (e.key === 'ArrowRight') this.onMove(this, 1);
-
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      this.focusSibling(-1);
-    }
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      this.focusSibling(1);
-    }
+    if (e.key === 'ArrowUp') { e.preventDefault(); this.focusSibling(-1); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); this.focusSibling(1); }
   }
 
   updateContent(title, description) {

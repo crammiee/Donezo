@@ -1,18 +1,34 @@
-import { trapFocus } from '../../utils/dom-utils.js';
+import { loadTemplate, trapFocus } from '../../utils/dom-utils.js';
+
+const TEMPLATE_PATH = '/components/modal/modal.html';
 
 export class Modal {
   constructor() {
-    this.$overlay = document.getElementById('TASK_MODAL');
-    this.$titleHeading = document.getElementById('MODAL_TITLE');
-    this.$titleInput = document.getElementById('MODAL_TITLE_INPUT');
-    this.$descInput = document.getElementById('MODAL_DESC_INPUT');
-    this.$statusSelect = document.getElementById('MODAL_STATUS_SELECT');
+    this.$overlay = null;
+    this.$titleHeading = null;
+    this.$titleInput = null;
+    this.$descInput = null;
+    this.$statusSelect = null;
     this.onConfirm = null;
   }
 
-  init() {
-    document.getElementById('MODAL_CANCEL').addEventListener('click', () => this.close());
-    document.getElementById('MODAL_CONFIRM').addEventListener('click', () => this.handleConfirm());
+  async init() {
+    this.$overlay = await loadTemplate(TEMPLATE_PATH);
+    document.body.appendChild(this.$overlay);
+    this.cacheElements();
+    this.attachEventListeners();
+  }
+
+  cacheElements() {
+    this.$titleHeading = this.$overlay.querySelector('#MODAL_TITLE');
+    this.$titleInput = this.$overlay.querySelector('#MODAL_TITLE_INPUT');
+    this.$descInput = this.$overlay.querySelector('#MODAL_DESC_INPUT');
+    this.$statusSelect = this.$overlay.querySelector('#MODAL_STATUS_SELECT');
+  }
+
+  attachEventListeners() {
+    this.$overlay.querySelector('#MODAL_CANCEL').addEventListener('click', () => this.close());
+    this.$overlay.querySelector('#MODAL_CONFIRM').addEventListener('click', () => this.handleConfirm());
     this.$overlay.addEventListener('click', (e) => this.handleOverlayClick(e));
     this.$overlay.addEventListener('keydown', (e) => this.handleKeydown(e));
   }

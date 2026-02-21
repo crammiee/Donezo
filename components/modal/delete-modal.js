@@ -1,15 +1,30 @@
-import { trapFocus } from '../../utils/dom-utils.js';
+import { loadTemplate, trapFocus } from '../../utils/dom-utils.js';
+
+const TEMPLATE_PATH = '/components/modal/delete-modal.html';
 
 export class DeleteModal {
   constructor() {
-    this.$overlay = document.getElementById('DELETE_MODAL');
-    this.$confirmBtn = document.getElementById('DELETE_CONFIRM');
-    this.$cancelBtn = document.getElementById('DELETE_CANCEL');
-    this.$message = document.getElementById('DELETE_MESSAGE');
+    this.$overlay = null;
+    this.$confirmBtn = null;
+    this.$cancelBtn = null;
+    this.$message = null;
     this.onConfirm = null;
   }
 
-  init() {
+  async init() {
+    this.$overlay = await loadTemplate(TEMPLATE_PATH);
+    document.body.appendChild(this.$overlay);
+    this.cacheElements();
+    this.attachEventListeners();
+  }
+
+  cacheElements() {
+    this.$confirmBtn = this.$overlay.querySelector('#DELETE_CONFIRM');
+    this.$cancelBtn = this.$overlay.querySelector('#DELETE_CANCEL');
+    this.$message = this.$overlay.querySelector('#DELETE_MESSAGE');
+  }
+
+  attachEventListeners() {
     this.$cancelBtn.addEventListener('click', () => this.close());
     this.$confirmBtn.addEventListener('click', () => this.handleConfirm());
     this.$overlay.addEventListener('click', (e) => this.handleOverlayClick(e));
