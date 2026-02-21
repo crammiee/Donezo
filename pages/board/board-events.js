@@ -20,9 +20,9 @@ function getNextStatus(currentStatus, direction) {
   return COLUMN_ORDER[nextIndex];
 }
 
-function mountCard(card) {
+async function mountCard(card) {
   const $col = getColumnEl(card.status);
-  card.render($col);
+  await card.render($col);
   updateColumnCount(card.status);
 }
 
@@ -33,18 +33,18 @@ function assignCardHandlers(card) {
 }
 
 function handleAddTask(status) {
-  modal.onConfirm = (data) => {
+  modal.onConfirm = async (data) => {
     const task = { id: generateId(), ...data };
     addTask(task);
     const card = new Card(task);
     assignCardHandlers(card);
-    mountCard(card);
+    await mountCard(card);
   };
   modal.open(status);
 }
 
 function handleEditCard(card) {
-  modal.onConfirm = (data) => {
+  modal.onConfirm = async (data) => {
     card.updateContent(data.title, data.description);
     const oldStatus = card.status;
     card.updateStatus(data.status);
@@ -53,7 +53,7 @@ function handleEditCard(card) {
     if (data.status !== oldStatus) {
       card.$element.remove();
       updateColumnCount(oldStatus);
-      mountCard(card);
+      await mountCard(card);
     }
   };
   modal.open(card.status, card.toJSON());
@@ -66,11 +66,10 @@ function handleDeleteCard(card) {
     card.remove();
     updateColumnCount(oldStatus);
   };
-
   deleteModal.open(card.title);
 }
 
-function handleMoveCard(card, direction) {
+async function handleMoveCard(card, direction) {
   const newStatus = getNextStatus(card.status, direction);
   if (!newStatus) return;
 
@@ -80,7 +79,7 @@ function handleMoveCard(card, direction) {
 
   card.$element.remove();
   updateColumnCount(oldStatus);
-  mountCard(card);
+  await mountCard(card);
   card.$element.focus();
 }
 
@@ -94,23 +93,22 @@ function handleBoardKeydown(e) {
   if (e.key === 'Enter' && e.target === document.body) handleAddTask('todo');
 }
 
-function loadAndRenderTasks() {
+async function loadAndRenderTasks() {
   const tasks = loadTasks();
-  tasks.forEach((taskData) => {
+  for (const taskData of tasks) {
     const card = Card.fromJSON(taskData);
     assignCardHandlers(card);
-    mountCard(card);
-  });
+    await mountCard(card);
+  }
 }
 
-export function initBoard() {
-  modal.init();
-  deleteModal.init();
-  loadAndRenderTasks();
+export async function initBoard() {
+  await modal.init();
+  await deleteModal.init();
+  await loadAndRenderTasks();
 
   document.addEventListener('click', handleAddButtonClick);
   document.addEventListener('keydown', handleBoardKeydown);
-
   document.getElementById('HELP_BTN').addEventListener('click', handleHelpOpen);
 }
 

@@ -1,3 +1,16 @@
+const templateCache = {};
+
+export async function loadTemplate(path) {
+  if (templateCache[path]) return templateCache[path].cloneNode(true);
+
+  const response = await fetch(path);
+  const html = await response.text();
+  const $wrapper = document.createElement('div');
+  $wrapper.innerHTML = html.trim();
+  templateCache[path] = $wrapper.firstElementChild;
+  return templateCache[path].cloneNode(true);
+}
+
 export function createElement(tag, className, textContent = '') {
   const $el = document.createElement(tag);
   if (className) $el.className = className;
