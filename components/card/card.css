@@ -46,3 +46,21 @@
 .card__btn--delete:hover {
   color: var(--color-danger);
 }
+
+.card--dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.card:not(.card--dragging) {
+  cursor: grab;
+}
+
+.card--dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.card:not(.card--dragging) {
+  cursor: grab;
+}

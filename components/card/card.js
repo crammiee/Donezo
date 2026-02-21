@@ -20,6 +20,8 @@ export class Card {
 
   populate() {
     this.$element.dataset.id = this.id;
+    this.$element.setAttribute('tabindex', '0');
+    this.$element.setAttribute('draggable', 'true');
     this.$element.setAttribute('aria-label', `Task: ${this.title}`);
     this.$element.querySelector('.card__title').textContent = this.title;
     this.$element.querySelector('.card__description').textContent = this.description;
@@ -29,6 +31,25 @@ export class Card {
     this.$element.querySelector('.card__btn--edit').addEventListener('click', () => this.onEdit(this));
     this.$element.querySelector('.card__btn--delete').addEventListener('click', () => this.onDelete(this));
     this.$element.addEventListener('keydown', (e) => this.handleKeydown(e));
+    this.$element.addEventListener('mouseenter', () => this.handleMouseEnter());
+    this.$element.addEventListener('dragstart', (e) => this.handleDragStart(e));
+    this.$element.addEventListener('dragend', () => this.handleDragEnd());
+  }
+
+  handleMouseEnter() {
+    if (this.onHover) this.onHover(this);
+  }
+
+  handleDragStart(e) {
+    e.dataTransfer.setData('text/plain', this.id);
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(() => this.$element.classList.add('card--dragging'), 0);
+    if (this.onDragStart) this.onDragStart(this);
+  }
+
+  handleDragEnd() {
+    this.$element.classList.remove('card--dragging');
+    if (this.onDragEnd) this.onDragEnd();
   }
 
   focusSibling(direction) {
@@ -67,6 +88,9 @@ export class Card {
   onEdit(card) {}
   onDelete(card) {}
   onMove(card, direction) {}
+  onHover(card) {}
+  onDragStart(card) {}
+  onDragEnd() {}
 
   toJSON() {
     return {
