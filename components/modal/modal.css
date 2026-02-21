@@ -118,3 +118,9 @@
 .help__action {
   color: var(--color-text-muted);
 }
+
+.modal__message {
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+  color: var(--color-text);
+}
