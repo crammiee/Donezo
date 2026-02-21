@@ -84,6 +84,20 @@
       </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay modal-overlay--hidden" id="DELETE_MODAL">
+      <div class="modal" role="dialog" aria-modal="true">
+        <h2 class="modal__title">Delete Task</h2>
+
+        <p id="DELETE_MESSAGE" style="font-size: 0.9rem; margin-bottom: 1.25rem;"></p>
+
+        <div class="modal__actions">
+          <button class="modal__btn modal__btn--cancel" id="DELETE_CANCEL">Cancel</button>
+          <button class="modal__btn modal__btn--confirm" id="DELETE_CONFIRM">Delete</button>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="pages/board/board.js"></script>
   </body>
 </html>

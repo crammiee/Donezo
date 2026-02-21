@@ -49,6 +49,18 @@ export class Card {
     return $btn;
   }
 
+  focusSibling(direction) {
+    const column = this.$element.closest('.column');
+    const cards = Array.from(column.querySelectorAll('.card'));
+
+    const currentIndex = cards.indexOf(this.$element);
+    const nextIndex = currentIndex + direction;
+
+    if (nextIndex < 0 || nextIndex >= cards.length) return;
+
+    cards[nextIndex].focus();
+  }
+
   attachEventListeners() {
     this.$element.querySelector('.card__btn--edit').addEventListener('click', () => this.onEdit(this));
     this.$element.querySelector('.card__btn--delete').addEventListener('click', () => this.onDelete(this));
@@ -60,6 +72,16 @@ export class Card {
     if (e.key === 'Enter') this.onEdit(this);
     if (e.key === 'ArrowLeft') this.onMove(this, -1);
     if (e.key === 'ArrowRight') this.onMove(this, 1);
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      this.focusSibling(-1);
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      this.focusSibling(1);
+    }
   }
 
   updateContent(title, description) {

@@ -1,11 +1,13 @@
 import { Card } from '../../components/card/card.js';
 import { Modal } from '../../components/modal/modal.js';
+import { DeleteModal } from '../../components/modal/delete-modal.js';
 import { loadTasks, addTask, updateTask, deleteTask } from '../../services/storage-service.js';
 import { getColumnEl, updateColumnCount } from './board-dom.js';
 
 const COLUMN_ORDER = ['todo', 'doing', 'done'];
 
 const modal = new Modal();
+const deleteModal = new DeleteModal();
 
 function generateId() {
   return `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
@@ -58,10 +60,14 @@ function handleEditCard(card) {
 }
 
 function handleDeleteCard(card) {
-  const oldStatus = card.status;
-  deleteTask(card.id);
-  card.remove();
-  updateColumnCount(oldStatus);
+  deleteModal.onConfirm = () => {
+    const oldStatus = card.status;
+    deleteTask(card.id);
+    card.remove();
+    updateColumnCount(oldStatus);
+  };
+
+  deleteModal.open(card.title);
 }
 
 function handleMoveCard(card, direction) {
@@ -99,6 +105,7 @@ function loadAndRenderTasks() {
 
 export function initBoard() {
   modal.init();
+  deleteModal.init();
   loadAndRenderTasks();
 
   document.addEventListener('click', handleAddButtonClick);

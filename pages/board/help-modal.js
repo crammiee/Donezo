@@ -4,6 +4,7 @@ const SHORTCUTS = [
   { key: 'Enter', action: 'Add a new task (defaults to To Do)' },
   { key: 'Tab', action: 'Navigate between elements' },
   { key: '← →', action: 'Move focused task between columns' },
+  { key: '↑ ↓', action: 'Navigate between tasks' },
   { key: 'Delete', action: 'Remove focused task' },
   { key: 'Esc', action: 'Close modal' },
 ];
