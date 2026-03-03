@@ -5,7 +5,7 @@
   padding: 0.75rem;
   margin-bottom: 0.5rem;
   box-shadow: var(--shadow);
-  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition), border-color var(--transition);
 }
 
 .card:focus-visible {
@@ -68,6 +68,5 @@
 }
 
 .card:hover:not(.card--dragging) {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-strong);
+  border-color: rgba(37, 99, 235, 0.35);
 }
