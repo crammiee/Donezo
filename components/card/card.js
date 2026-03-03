@@ -85,13 +85,6 @@ export class Card {
     this.$element.remove();
   }
 
-  onEdit(card) {}
-  onDelete(card) {}
-  onMove(card, direction) {}
-  onHover(card) {}
-  onDragStart(card) {}
-  onDragEnd() {}
-
   toJSON() {
     return {
       id: this.id,

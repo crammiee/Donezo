@@ -1,21 +1,29 @@
-export function getColumnEl(status) {
-  return document.querySelector(`.column[data-status="${status}"]`);
-}
+export class BoardDOM {
+  getColumnEl(status) {
+    return document.querySelector(`.column[data-status="${status}"]`);
+  }
 
-export function updateColumnCount(status) {
-  const $col = getColumnEl(status);
-  const count = $col.querySelectorAll('.card').length;
-  $col.querySelector('.column__count').textContent = count;
-  $col.querySelector('.column__empty').style.display = count === 0 ? 'block' : 'none';
-}
+  updateColumnCount(status) {
+    const $col = this.getColumnEl(status);
+    const count = $col.querySelectorAll('.card').length;
+    $col.querySelector('.column__count').textContent = count;
+    $col.querySelector('.column__empty').style.display = count === 0 ? 'block' : 'none';
+  }
 
-export function highlightColumn($col) {
-  clearColumnHighlights();
-  if ($col) $col.classList.add('column--drag-over');
-}
+  async mountCard(card) {
+    const $col = this.getColumnEl(card.status);
+    await card.render($col);
+    this.updateColumnCount(card.status);
+  }
 
-export function clearColumnHighlights() {
-  document.querySelectorAll('.column--drag-over').forEach(($c) => {
-    $c.classList.remove('column--drag-over');
-  });
+  highlightColumn($col) {
+    this.clearColumnHighlights();
+    if ($col) $col.classList.add('column--drag-over');
+  }
+
+  clearColumnHighlights() {
+    document.querySelectorAll('.column--drag-over').forEach(($c) => {
+      $c.classList.remove('column--drag-over');
+    });
+  }
 }

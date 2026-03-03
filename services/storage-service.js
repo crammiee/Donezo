@@ -1,32 +1,31 @@
 const STORAGE_KEY = 'donezo_tasks';
 
-function loadTasks() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
-}
+export class StorageService {
+  load() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }
 
-function saveTasks(tasks) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-}
+  add(task) {
+    const tasks = this.load();
+    tasks.push(task);
+    this.save(tasks);
+  }
 
-function addTask(task) {
-  const tasks = loadTasks();
-  tasks.push(task);
-  saveTasks(tasks);
-}
+  update(updatedTask) {
+    const tasks = this.load();
+    const index = tasks.findIndex((t) => t.id === updatedTask.id);
+    if (index === -1) throw new Error(`Task not found: ${updatedTask.id}`);
+    tasks[index] = updatedTask;
+    this.save(tasks);
+  }
 
-function updateTask(updatedTask) {
-  const tasks = loadTasks();
-  const index = tasks.findIndex((t) => t.id === updatedTask.id);
-  if (index === -1) throw new Error(`Task not found: ${updatedTask.id}`);
-  tasks[index] = updatedTask;
-  saveTasks(tasks);
-}
+  delete(taskId) {
+    const tasks = this.load();
+    this.save(tasks.filter((t) => t.id !== taskId));
+  }
 
-function deleteTask(taskId) {
-  const tasks = loadTasks();
-  const filtered = tasks.filter((t) => t.id !== taskId);
-  saveTasks(filtered);
+  save(tasks) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  }
 }
-
-export { loadTasks, addTask, updateTask, deleteTask };
