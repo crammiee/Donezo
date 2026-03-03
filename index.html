@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Donezo</title>
+
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/modal.css" />
+    <link rel="stylesheet" href="components/card/card.css" />
+    <link rel="stylesheet" href="pages/board/board.css" />
+    <link rel="stylesheet" href="components/modal/help-modal/help-modal.css" />
+  </head>
+  <body>
+
+    <div class="board">
+      <div class="board__header">
+        <h1 class="board__title">Donezo</h1>
+        <p class="board__subtitle">Stay organized. Finish fast.</p>
+      </div>
+
+      <div class="board__columns">
+
+        <div class="column" data-status="todo">
+          <div class="column__header">
+            <span class="column__title">To Do</span>
+            <span class="column__count">0</span>
+          </div>
+          <p class="column__empty">No tasks yet. Add one to get started.</p>
+          <button class="column__add-btn" data-status="todo">+ new task</button>
+        </div>
+
+        <div class="column" data-status="doing">
+          <div class="column__header">
+            <span class="column__title">Doing</span>
+            <span class="column__count">0</span>
+          </div>
+          <p class="column__empty">Tasks you're working on appear here.</p>
+          <button class="column__add-btn" data-status="doing">+ new task</button>
+        </div>
+
+        <div class="column" data-status="done">
+          <div class="column__header">
+            <span class="column__title">Done</span>
+            <span class="column__count">0</span>
+          </div>
+          <p class="column__empty">Completed tasks appear here. Nice progress!</p>
+          <button class="column__add-btn" data-status="done">+ new task</button>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="board__help-btn" id="HELP_BTN" aria-label="Keyboard shortcuts help">?</button>
+
+    <script type="module" src="pages/board/board.js"></script>
+  </body>
+</html>
