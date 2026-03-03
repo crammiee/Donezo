@@ -28,7 +28,7 @@ export class CardActions {
       const oldStatus = card.status;
       card.updateContent(data.title, data.description);
       card.updateStatus(data.status);
-      this.storage.update(card.toJSON());
+      this.storage.update(card.toData());
 
       if (data.status !== oldStatus) {
         card.$element.remove();
@@ -36,7 +36,7 @@ export class CardActions {
         await this.boardDOM.mountCard(card);
       }
     };
-    this.modal.open(card.status, card.toJSON());
+    this.modal.open(card.status, card.toData());
   }
 
   handleDelete(card) {
@@ -55,7 +55,7 @@ export class CardActions {
 
     const oldStatus = card.status;
     card.updateStatus(newStatus);
-    this.storage.update(card.toJSON());
+    this.storage.update(card.toData());
 
     card.$element.remove();
     this.boardDOM.updateColumnCount(oldStatus);
@@ -68,7 +68,7 @@ export class CardActions {
 
     const oldStatus = card.status;
     card.updateStatus(newStatus);
-    this.storage.update(card.toJSON());
+    this.storage.update(card.toData());
 
     card.$element.remove();
     this.boardDOM.updateColumnCount(oldStatus);
@@ -85,7 +85,7 @@ export class CardActions {
 
   fromStorage() {
     return this.storage.load().map((taskData) => {
-      const card = Card.fromJSON(taskData);
+      const card = new Card(taskData);
       this.assign(card);
       return card;
     });

@@ -9,50 +9,55 @@ const SHORTCUTS = [
   { key: 'Esc', action: 'Close modal' },
 ];
 
-function createHelpOverlay() {
-  const $overlay = createElement('div', 'modal-overlay');
-  $overlay.id = 'HELP_MODAL';
-  $overlay.appendChild(createHelpContent($overlay));
-  return $overlay;
-}
+export class HelpModal {
+  open() {
+    const $existing = document.getElementById('HELP_MODAL');
+    if ($existing) $existing.remove();
 
-function createHelpContent($overlay) {
-  const $modal = createElement('div', 'modal');
-  $modal.appendChild(createElement('h2', 'modal__title', 'Keyboard Shortcuts'));
-  $modal.appendChild(createShortcutList());
-  $modal.appendChild(createCloseButton($overlay));
-  return $modal;
-}
+    const $overlay = this.createElement();
+    this.attachEventListeners($overlay);
+    document.body.appendChild($overlay);
+    $overlay.querySelector('.modal__btn--confirm').focus();
+  }
 
-function createShortcutList() {
-  const $list = createElement('ul', 'help__list');
-  SHORTCUTS.forEach((shortcut) => $list.appendChild(createShortcutItem(shortcut)));
-  return $list;
-}
+  createElement() {
+    const $overlay = createElement('div', 'modal-overlay');
+    $overlay.id = 'HELP_MODAL';
+    $overlay.appendChild(this.createContent($overlay));
+    return $overlay;
+  }
 
-function createShortcutItem({ key, action }) {
-  const $item = createElement('li', 'help__item');
-  $item.appendChild(createElement('kbd', 'help__key', key));
-  $item.appendChild(createElement('span', 'help__action', action));
-  return $item;
-}
+  createContent($overlay) {
+    const $modal = createElement('div', 'modal');
+    $modal.appendChild(createElement('h2', 'modal__title', 'Keyboard Shortcuts'));
+    $modal.appendChild(this.createShortcutList());
+    $modal.appendChild(this.createCloseButton($overlay));
+    return $modal;
+  }
 
-function createCloseButton($overlay) {
-  const $actions = createElement('div', 'modal__actions');
-  const $btn = createElement('button', 'modal__btn modal__btn--confirm', 'Got it');
-  $btn.addEventListener('click', () => $overlay.remove());
-  $actions.appendChild($btn);
-  return $actions;
-}
+  createShortcutList() {
+    const $list = createElement('ul', 'help__list');
+    SHORTCUTS.forEach((shortcut) => $list.appendChild(this.createShortcutItem(shortcut)));
+    return $list;
+  }
 
-export function openHelpModal() {
-  const $existing = document.getElementById('HELP_MODAL');
-  if ($existing) $existing.remove();
+  createShortcutItem({ key, action }) {
+    const $item = createElement('li', 'help__item');
+    $item.appendChild(createElement('kbd', 'help__key', key));
+    $item.appendChild(createElement('span', 'help__action', action));
+    return $item;
+  }
 
-  const $overlay = createHelpOverlay();
-  $overlay.addEventListener('click', (e) => { if (e.target === $overlay) $overlay.remove(); });
-  $overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') $overlay.remove(); });
+  createCloseButton($overlay) {
+    const $actions = createElement('div', 'modal__actions');
+    const $btn = createElement('button', 'modal__btn modal__btn--confirm', 'Got it');
+    $btn.addEventListener('click', () => $overlay.remove());
+    $actions.appendChild($btn);
+    return $actions;
+  }
 
-  document.body.appendChild($overlay);
-  $overlay.querySelector('.modal__btn--confirm').focus();
+  attachEventListeners($overlay) {
+    $overlay.addEventListener('click', (e) => { if (e.target === $overlay) $overlay.remove(); });
+    $overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') $overlay.remove(); });
+  }
 }

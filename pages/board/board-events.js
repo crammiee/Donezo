@@ -1,13 +1,15 @@
-import { Modal } from '../../components/modal/modal.js';
+import { TaskModal } from '../../components/modal/task-modal.js';
 import { DeleteModal } from '../../components/modal/delete-modal.js';
 import { CardActions } from '../../components/card/card-actions.js';
+import { HelpModal } from './help-modal.js';
 
 export class BoardEvents {
   constructor(boardDOM, storage) {
     this.boardDOM = boardDOM;
     this.storage = storage;
-    this.modal = new Modal();
+    this.modal = new TaskModal();
     this.deleteModal = new DeleteModal();
+    this.helpModal = new HelpModal();
     this.cardActions = new CardActions(boardDOM, storage, this.modal, this.deleteModal);
     this.isUsingKeyboard = false;
     this.draggedCard = null;
@@ -105,6 +107,6 @@ export class BoardEvents {
   }
 
   handleHelpOpen() {
-    import('./help-modal.js').then(({ openHelpModal }) => openHelpModal());
+    this.helpModal.open();
   }
 }

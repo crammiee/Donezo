@@ -1,4 +1,5 @@
 import { loadTemplate, createElement } from '../../utils/dom-utils.js';
+import { createTouchClone, moveTouchClone, removeTouchClone, getColumnFromTouch } from '../../utils/touch-drag.js';
 
 const TEMPLATE_PATH = '/components/card/card.html';
 
@@ -34,6 +35,9 @@ export class Card {
     this.$element.addEventListener('mouseenter', () => this.handleMouseEnter());
     this.$element.addEventListener('dragstart', (e) => this.handleDragStart(e));
     this.$element.addEventListener('dragend', () => this.handleDragEnd());
+    this.$element.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: true });
+    this.$element.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+    this.$element.addEventListener('touchend', (e) => this.handleTouchEnd(e));
   }
 
   handleMouseEnter() {
@@ -50,6 +54,27 @@ export class Card {
   handleDragEnd() {
     this.$element.classList.remove('card--dragging');
     if (this.onDragEnd) this.onDragEnd();
+  }
+
+  handleTouchStart(e) {
+    const touch = e.touches[0];
+    createTouchClone(this.$element, touch);
+    this.$element.classList.add('card--dragging');
+    if (this.onDragStart) this.onDragStart(this);
+  }
+
+  handleTouchMove(e) {
+    e.preventDefault();
+    moveTouchClone(e.touches[0]);
+  }
+
+  handleTouchEnd(e) {
+    const touch = e.changedTouches[0];
+    const $col = getColumnFromTouch(touch);
+    removeTouchClone();
+    this.$element.classList.remove('card--dragging');
+    if (this.onDragEnd) this.onDragEnd();
+    if ($col && this.onDrop) this.onDrop(this, $col.dataset.status);
   }
 
   focusSibling(direction) {
@@ -85,16 +110,12 @@ export class Card {
     this.$element.remove();
   }
 
-  toJSON() {
+  toData() {
     return {
       id: this.id,
       title: this.title,
       description: this.description,
       status: this.status,
     };
-  }
-
-  static fromJSON(data) {
-    return new Card(data);
   }
 }
