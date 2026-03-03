@@ -1,4 +1,4 @@
-import { createElement } from '../../utils/dom-utils.js';
+import { createElement } from '../../../utils/dom-utils.js';
 
 const SHORTCUTS = [
   { key: 'Enter', action: 'Add a new task (defaults to To Do)' },

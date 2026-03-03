@@ -1,7 +1,7 @@
-import { TaskModal } from '../../components/modal/task-modal.js';
-import { DeleteModal } from '../../components/modal/delete-modal.js';
+import { TaskModal } from '../../components/modal/task-modal/task-modal.js';
+import { DeleteModal } from '../../components/modal/delete-modal/delete-modal.js';
 import { CardActions } from '../../components/card/card-actions.js';
-import { HelpModal } from './help-modal.js';
+import { HelpModal } from '../../components/modal/help-modal/help-modal.js';
 
 export class BoardEvents {
   constructor(boardDOM, storage) {
