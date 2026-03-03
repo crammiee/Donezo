@@ -1,4 +1,6 @@
-import { createElement } from '../../../utils/dom-utils.js';
+import { loadTemplate, createElement } from '../../../utils/dom-utils.js';
+
+const TEMPLATE_PATH = '/components/modal/help-modal/help-modal.html';
 
 const SHORTCUTS = [
   { key: 'Enter', action: 'Add a new task (defaults to To Do)' },
@@ -10,35 +12,21 @@ const SHORTCUTS = [
 ];
 
 export class HelpModal {
-  open() {
+  async open() {
     const $existing = document.getElementById('HELP_MODAL');
     if ($existing) $existing.remove();
 
-    const $overlay = this.createElement();
+    const $overlay = await loadTemplate(TEMPLATE_PATH);
+    this.populateShortcuts($overlay);
     this.attachEventListeners($overlay);
     document.body.appendChild($overlay);
-    $overlay.querySelector('.modal__btn--confirm').focus();
+    $overlay.classList.remove('modal-overlay--hidden');
+    $overlay.querySelector('#HELP_CLOSE').focus();
   }
 
-  createElement() {
-    const $overlay = createElement('div', 'modal-overlay');
-    $overlay.id = 'HELP_MODAL';
-    $overlay.appendChild(this.createContent($overlay));
-    return $overlay;
-  }
-
-  createContent($overlay) {
-    const $modal = createElement('div', 'modal');
-    $modal.appendChild(createElement('h2', 'modal__title', 'Keyboard Shortcuts'));
-    $modal.appendChild(this.createShortcutList());
-    $modal.appendChild(this.createCloseButton($overlay));
-    return $modal;
-  }
-
-  createShortcutList() {
-    const $list = createElement('ul', 'help__list');
+  populateShortcuts($overlay) {
+    const $list = $overlay.querySelector('.help__list');
     SHORTCUTS.forEach((shortcut) => $list.appendChild(this.createShortcutItem(shortcut)));
-    return $list;
   }
 
   createShortcutItem({ key, action }) {
@@ -48,15 +36,8 @@ export class HelpModal {
     return $item;
   }
 
-  createCloseButton($overlay) {
-    const $actions = createElement('div', 'modal__actions');
-    const $btn = createElement('button', 'modal__btn modal__btn--confirm', 'Got it');
-    $btn.addEventListener('click', () => $overlay.remove());
-    $actions.appendChild($btn);
-    return $actions;
-  }
-
   attachEventListeners($overlay) {
+    $overlay.querySelector('#HELP_CLOSE').addEventListener('click', () => $overlay.remove());
     $overlay.addEventListener('click', (e) => { if (e.target === $overlay) $overlay.remove(); });
     $overlay.addEventListener('keydown', (e) => { if (e.key === 'Escape') $overlay.remove(); });
   }
