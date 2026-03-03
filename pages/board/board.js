@@ -1,3 +1,9 @@
-import { initBoard } from './board-events.js';
+import { StorageService } from '../../services/storage-service.js';
+import { BoardDOM } from './board-dom.js';
+import { BoardEvents } from './board-events.js';
 
-initBoard();
+const storage = new StorageService();
+const boardDOM = new BoardDOM();
+const boardEvents = new BoardEvents(boardDOM, storage);
+
+boardEvents.init();

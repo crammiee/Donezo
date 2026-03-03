@@ -30,14 +30,18 @@ export function trapFocus(e, $container) {
   const last = focusable[focusable.length - 1];
 
   if (e.shiftKey) {
-    if (document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    }
+    if (document.activeElement === first) wrapFocusToEnd(e, last);
   } else {
-    if (document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
+    if (document.activeElement === last) wrapFocusToStart(e, first);
   }
+}
+
+function wrapFocusToEnd(e, $last) {
+  e.preventDefault();
+  $last.focus();
+}
+
+function wrapFocusToStart(e, $first) {
+  e.preventDefault();
+  $first.focus();
 }

@@ -1,6 +1,6 @@
-import { loadTemplate, trapFocus } from '../../utils/dom-utils.js';
+import { loadTemplate, trapFocus } from '../../../utils/dom-utils.js';
 
-const TEMPLATE_PATH = '/components/modal/delete-modal.html';
+const TEMPLATE_PATH = '/components/modal/delete-modal/delete-modal.html';
 
 export class DeleteModal {
   constructor() {

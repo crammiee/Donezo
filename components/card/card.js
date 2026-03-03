@@ -1,4 +1,4 @@
-import { loadTemplate, createElement } from '../../utils/dom-utils.js';
+import { loadTemplate } from '../../utils/dom-utils.js';
 
 const TEMPLATE_PATH = '/components/card/card.html';
 
@@ -61,12 +61,24 @@ export class Card {
   }
 
   handleKeydown(e) {
-    if (e.key === 'Delete') this.onDelete(this);
-    if (e.key === 'Enter') this.onEdit(this);
-    if (e.key === 'ArrowLeft') this.onMove(this, -1);
-    if (e.key === 'ArrowRight') this.onMove(this, 1);
-    if (e.key === 'ArrowUp') { e.preventDefault(); this.focusSibling(-1); }
-    if (e.key === 'ArrowDown') { e.preventDefault(); this.focusSibling(1); }
+    switch (e.key) {
+      case 'Delete':     this.onDelete(this); break;
+      case 'Enter':      this.onEdit(this); break;
+      case 'ArrowLeft':  this.onMove(this, -1); break;
+      case 'ArrowRight': this.onMove(this, 1); break;
+      case 'ArrowUp':    this.focusSiblingUp(e); break;
+      case 'ArrowDown':  this.focusSiblingDown(e); break;
+    }
+  }
+
+  focusSiblingUp(e) {
+    e.preventDefault();
+    this.focusSibling(-1);
+  }
+
+  focusSiblingDown(e) {
+    e.preventDefault();
+    this.focusSibling(1);
   }
 
   updateContent(title, description) {
@@ -85,23 +97,12 @@ export class Card {
     this.$element.remove();
   }
 
-  onEdit(card) {}
-  onDelete(card) {}
-  onMove(card, direction) {}
-  onHover(card) {}
-  onDragStart(card) {}
-  onDragEnd() {}
-
-  toJSON() {
+  toData() {
     return {
       id: this.id,
       title: this.title,
       description: this.description,
       status: this.status,
     };
-  }
-
-  static fromJSON(data) {
-    return new Card(data);
   }
 }

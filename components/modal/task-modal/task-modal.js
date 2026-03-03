@@ -1,8 +1,8 @@
-import { loadTemplate, trapFocus } from '../../utils/dom-utils.js';
+import { loadTemplate, trapFocus } from '../../../utils/dom-utils.js';
 
-const TEMPLATE_PATH = '/components/modal/modal.html';
+const TEMPLATE_PATH = '/components/modal/task-modal/task-modal.html';
 
-export class Modal {
+export class TaskModal {
   constructor() {
     this.$overlay = null;
     this.$titleHeading = null;

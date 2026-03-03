@@ -1,185 +1,112 @@
-import { Card } from '../../components/card/card.js';
-import { Modal } from '../../components/modal/modal.js';
-import { DeleteModal } from '../../components/modal/delete-modal.js';
-import { loadTasks, addTask, updateTask, deleteTask } from '../../services/storage-service.js';
-import { getColumnEl, updateColumnCount, highlightColumn, clearColumnHighlights } from './board-dom.js';
+import { TaskModal } from '../../components/modal/task-modal/task-modal.js';
+import { DeleteModal } from '../../components/modal/delete-modal/delete-modal.js';
+import { CardActions } from '../../components/card/card-actions.js';
+import { HelpModal } from '../../components/modal/help-modal/help-modal.js';
 
-const COLUMN_ORDER = ['todo', 'doing', 'done'];
+export class BoardEvents {
+  constructor(boardDOM, storage) {
+    this.boardDOM = boardDOM;
+    this.storage = storage;
+    this.modal = new TaskModal();
+    this.deleteModal = new DeleteModal();
+    this.helpModal = new HelpModal();
+    this.cardActions = new CardActions(boardDOM, storage, this.modal, this.deleteModal);
+    this.isUsingKeyboard = false;
+    this.draggedCard = null;
 
-const modal = new Modal();
-const deleteModal = new DeleteModal();
-
-let isUsingKeyboard = false;
-let draggedCard = null;
-
-function generateId() {
-  return `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function getNextStatus(currentStatus, direction) {
-  const index = COLUMN_ORDER.indexOf(currentStatus);
-  const nextIndex = index + direction;
-  if (nextIndex < 0 || nextIndex >= COLUMN_ORDER.length) return null;
-  return COLUMN_ORDER[nextIndex];
-}
-
-async function mountCard(card) {
-  const $col = getColumnEl(card.status);
-  await card.render($col);
-  updateColumnCount(card.status);
-}
-
-function assignCardHandlers(card) {
-  card.onEdit = handleEditCard;
-  card.onDelete = handleDeleteCard;
-  card.onMove = handleMoveCard;
-  card.onHover = handleCardHover;
-  card.onDragStart = handleCardDragStart;
-  card.onDragEnd = handleCardDragEnd;
-}
-
-function handleCardHover(card) {
-  if (isUsingKeyboard) return;
-  card.$element.focus();
-}
-
-function handleCardDragStart(card) {
-  draggedCard = card;
-}
-
-function handleCardDragEnd() {
-  draggedCard = null;
-  clearColumnHighlights();
-}
-
-function handleAddTask(status) {
-  modal.onConfirm = async (data) => {
-    const task = { id: generateId(), ...data };
-    addTask(task);
-    const card = new Card(task);
-    assignCardHandlers(card);
-    await mountCard(card);
-  };
-  modal.open(status);
-}
-
-function handleEditCard(card) {
-  modal.onConfirm = async (data) => {
-    card.updateContent(data.title, data.description);
-    const oldStatus = card.status;
-    card.updateStatus(data.status);
-    updateTask(card.toJSON());
-
-    if (data.status !== oldStatus) {
-      card.$element.remove();
-      updateColumnCount(oldStatus);
-      await mountCard(card);
-    }
-  };
-  modal.open(card.status, card.toJSON());
-}
-
-function handleDeleteCard(card) {
-  deleteModal.onConfirm = () => {
-    const oldStatus = card.status;
-    deleteTask(card.id);
-    card.remove();
-    updateColumnCount(oldStatus);
-  };
-  deleteModal.open(card.title);
-}
-
-async function handleMoveCard(card, direction) {
-  const newStatus = getNextStatus(card.status, direction);
-  if (!newStatus) return;
-
-  const oldStatus = card.status;
-  card.updateStatus(newStatus);
-  updateTask(card.toJSON());
-
-  card.$element.remove();
-  updateColumnCount(oldStatus);
-  await mountCard(card);
-  card.$element.focus();
-}
-
-function handleColumnDragOver(e) {
-  e.preventDefault();
-  e.dataTransfer.dropEffect = 'move';
-  const $col = e.currentTarget;
-  highlightColumn($col);
-}
-
-function handleColumnDragLeave(e) {
-  const $col = e.currentTarget;
-  if (!$col.contains(e.relatedTarget)) clearColumnHighlights();
-}
-
-async function handleColumnDrop(e) {
-  e.preventDefault();
-  clearColumnHighlights();
-
-  if (!draggedCard) return;
-
-  const $col = e.currentTarget;
-  const newStatus = $col.dataset.status;
-
-  if (newStatus === draggedCard.status) return;
-
-  const oldStatus = draggedCard.status;
-  draggedCard.updateStatus(newStatus);
-  updateTask(draggedCard.toJSON());
-
-  draggedCard.$element.remove();
-  updateColumnCount(oldStatus);
-  await mountCard(draggedCard);
-}
-
-function handleAddButtonClick(e) {
-  const $btn = e.target.closest('.column__add-btn');
-  if (!$btn) return;
-  handleAddTask($btn.dataset.status);
-}
-
-function handleBoardKeydown(e) {
-  isUsingKeyboard = true;
-  if (e.key === 'Enter' && e.target === document.body) handleAddTask('todo');
-}
-
-function handleBoardMouseMove() {
-  isUsingKeyboard = false;
-}
-
-function attachColumnDropListeners() {
-  document.querySelectorAll('.column').forEach(($col) => {
-    $col.addEventListener('dragover', handleColumnDragOver);
-    $col.addEventListener('dragleave', handleColumnDragLeave);
-    $col.addEventListener('drop', handleColumnDrop);
-  });
-}
-
-async function loadAndRenderTasks() {
-  const tasks = loadTasks();
-  for (const taskData of tasks) {
-    const card = Card.fromJSON(taskData);
-    assignCardHandlers(card);
-    await mountCard(card);
+    this.cardActions.onDragStart = (card) => this.handleCardDragStart(card);
+    this.cardActions.onDragEnd = () => this.handleCardDragEnd();
+    this.cardActions.onHover = (card) => this.handleCardHover(card);
   }
-}
 
-export async function initBoard() {
-  await modal.init();
-  await deleteModal.init();
-  await loadAndRenderTasks();
+  async init() {
+    await this.modal.init();
+    await this.deleteModal.init();
+    await this.loadAndRenderTasks();
 
-  attachColumnDropListeners();
+    this.attachColumnDropListeners();
 
-  document.addEventListener('click', handleAddButtonClick);
-  document.addEventListener('keydown', handleBoardKeydown);
-  document.addEventListener('mousemove', handleBoardMouseMove);
-  document.getElementById('HELP_BTN').addEventListener('click', handleHelpOpen);
-}
+    document.addEventListener('click', (e) => this.handleAddButtonClick(e));
+    document.addEventListener('keydown', (e) => this.handleBoardKeydown(e));
+    document.addEventListener('mousemove', () => this.handleBoardMouseMove());
+    document.getElementById('HELP_BTN').addEventListener('click', () => this.handleHelpOpen());
+  }
 
-function handleHelpOpen() {
-  import('./help-modal.js').then(({ openHelpModal }) => openHelpModal());
+  async loadAndRenderTasks() {
+    const cards = this.cardActions.fromStorage();
+    for (const card of cards) {
+      await this.boardDOM.mountCard(card);
+    }
+  }
+
+  handleAddTask(status) {
+    this.modal.onConfirm = async (data) => {
+      const card = this.cardActions.createCard(data);
+      await this.boardDOM.mountCard(card);
+    };
+    this.modal.open(status);
+  }
+
+  handleCardDragStart(card) {
+    this.draggedCard = card;
+  }
+
+  handleCardDragEnd() {
+    this.draggedCard = null;
+    this.boardDOM.clearColumnHighlights();
+  }
+
+  handleCardHover(card) {
+    if (this.isUsingKeyboard) return;
+    card.$element.focus();
+  }
+
+  handleColumnDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    this.boardDOM.highlightColumn(e.currentTarget);
+  }
+
+  handleColumnDragLeave(e) {
+    if (!e.currentTarget.contains(e.relatedTarget)) this.boardDOM.clearColumnHighlights();
+  }
+
+  async handleColumnDrop(e) {
+    e.preventDefault();
+    this.boardDOM.clearColumnHighlights();
+    if (!this.draggedCard) return;
+
+    const newStatus = e.currentTarget.dataset.status;
+    if (newStatus === this.draggedCard.status) return;
+
+    await this.cardActions.handleDrop(this.draggedCard, newStatus);
+    this.draggedCard = null;
+  }
+
+  handleAddButtonClick(e) {
+    const $btn = e.target.closest('.column__add-btn');
+    if (!$btn) return;
+    this.handleAddTask($btn.dataset.status);
+  }
+
+  handleBoardKeydown(e) {
+    this.isUsingKeyboard = true;
+    if (e.key === 'Enter' && e.target === document.body) this.handleAddTask('todo');
+  }
+
+  handleBoardMouseMove() {
+    this.isUsingKeyboard = false;
+  }
+
+  attachColumnDropListeners() {
+    document.querySelectorAll('.column').forEach(($col) => {
+      $col.addEventListener('dragover', (e) => this.handleColumnDragOver(e));
+      $col.addEventListener('dragleave', (e) => this.handleColumnDragLeave(e));
+      $col.addEventListener('drop', (e) => this.handleColumnDrop(e));
+    });
+  }
+
+  handleHelpOpen() {
+    this.helpModal.open();
+  }
 }
