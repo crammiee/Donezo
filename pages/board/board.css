@@ -114,6 +114,10 @@
   line-height: 1.6;
 }
 
+.column__empty--hidden {
+  display: none;
+}
+
 .board__help-btn {
   position: fixed;
   bottom: 1.5rem;

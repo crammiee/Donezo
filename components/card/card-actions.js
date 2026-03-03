@@ -24,29 +24,28 @@ export class CardActions {
   }
 
   handleEdit(card) {
-    this.modal.onConfirm = async (data) => {
-      const oldStatus = card.status;
-      card.updateContent(data.title, data.description);
-      card.updateStatus(data.status);
-      this.storage.update(card.toData());
-
-      if (data.status !== oldStatus) {
-        card.$element.remove();
-        this.boardDOM.updateColumnCount(oldStatus);
-        await this.boardDOM.mountCard(card);
-      }
-    };
+    this.modal.onConfirm = async (data) => this.confirmEdit(card, data);
     this.modal.open(card.status, card.toData());
   }
 
+  async confirmEdit(card, data) {
+    const oldStatus = card.status;
+    card.updateContent(data.title, data.description);
+    card.updateStatus(data.status);
+    this.storage.update(card.toData());
+    if (data.status !== oldStatus) await this.moveCardToColumn(card, oldStatus);
+  }
+
   handleDelete(card) {
-    this.deleteModal.onConfirm = () => {
-      const oldStatus = card.status;
-      this.storage.delete(card.id);
-      card.remove();
-      this.boardDOM.updateColumnCount(oldStatus);
-    };
+    this.deleteModal.onConfirm = () => this.confirmDelete(card);
     this.deleteModal.open(card.title);
+  }
+
+  confirmDelete(card) {
+    const oldStatus = card.status;
+    this.storage.delete(card.id);
+    card.remove();
+    this.boardDOM.updateColumnCount(oldStatus);
   }
 
   async handleMove(card, direction) {
@@ -56,10 +55,7 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update(card.toData());
-
-    card.$element.remove();
-    this.boardDOM.updateColumnCount(oldStatus);
-    await this.boardDOM.mountCard(card);
+    await this.moveCardToColumn(card, oldStatus);
     card.$element.focus();
   }
 
@@ -69,7 +65,10 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update(card.toData());
+    await this.moveCardToColumn(card, oldStatus);
+  }
 
+  async moveCardToColumn(card, oldStatus) {
     card.$element.remove();
     this.boardDOM.updateColumnCount(oldStatus);
     await this.boardDOM.mountCard(card);

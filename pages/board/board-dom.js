@@ -4,21 +4,21 @@ export class BoardDOM {
   }
 
   updateColumnCount(status) {
-    const $target_column = this.getColumnEl(status);
-    const count = $target_column.querySelectorAll('.card').length;
-    $target_column.querySelector('.column__count').textContent = count;
-    $target_column.querySelector('.column__empty').style.display = count === 0 ? 'block' : 'none';
+    const $targetColumn = this.getColumnEl(status);
+    const count = $targetColumn.querySelectorAll('.card').length;
+    $targetColumn.querySelector('.column__count').textContent = count;
+    $targetColumn.querySelector('.column__empty').classList.toggle('column__empty--hidden', count > 0);
   }
 
   async mountCard(card) {
-    const $target_column = this.getColumnEl(card.status);
-    await card.render($target_column);
+    const $targetColumn = this.getColumnEl(card.status);
+    await card.render($targetColumn);
     this.updateColumnCount(card.status);
   }
 
-  highlightColumn($target_column) {
+  highlightColumn($targetColumn) {
     this.clearColumnHighlights();
-    if ($target_column) $target_column.classList.add('column--drag-over');
+    if ($targetColumn) $targetColumn.classList.add('column--drag-over');
   }
 
   clearColumnHighlights() {
