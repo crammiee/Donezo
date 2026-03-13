@@ -3,6 +3,11 @@ plans/
 
 # Dependencies
 node_modules/
+server/node_modules/
+client/node_modules/
+
+# Environment
+server/.env
 
 # OS
 .DS_Store
