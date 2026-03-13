@@ -1,4 +1,17 @@
-// socket.io WebSocket broadcast
+import { Server } from 'socket.io';
 
-export function initSocket(httpServer) {}
-export function broadcastTaskEvent(event, payload) {}
+let io;
+
+export function initSocket(httpServer) {
+  io = new Server(httpServer, { cors: { origin: '*' } });
+
+  io.on('connection', (socket) => {
+    socket.on('join', (userId) => {
+      socket.join(userId);
+    });
+  });
+}
+
+export function broadcastTaskEvent(userId, event, payload) {
+  if (io) io.to(userId).emit(event, payload);
+}
