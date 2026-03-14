@@ -1,3 +1,4 @@
+import { isAuthenticated } from '../../services/auth-service.js';
 import { StorageService } from '../../services/storage-service.js';
 import { BoardDOM } from './board-dom.js';
 import { BoardEvents } from './board-events.js';
