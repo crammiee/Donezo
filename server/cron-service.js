@@ -19,4 +19,4 @@ async function cleanDeletedTasks() {
   } catch (err) {
     console.error('[Cron] Error purging tasks:', err);
   }
-}
+} 
