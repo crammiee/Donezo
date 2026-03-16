@@ -2,7 +2,7 @@
 import { query } from '../db/db.js';
 
 export async function getTasksByUser(userId) {
-    const result = await query('SELECT * FROM tasks WHERE user_id = $1 AND is_deleted = false', [userId]);
+    const result = await query('SELECT * FROM tasks WHERE user_id = $1 AND deleted_at IS NULL', [userId]);
     return result.rows;    
 }
 
@@ -19,14 +19,14 @@ export async function upsertTask(task, userId) {
             updated_at = EXCLUDED.updated_at
         WHERE tasks.updated_at < EXCLUDED.updated_at
         RETURNING *;`,
-        [id, userID, title, description, status, updated_at]);
+        [id, userId, title, description, status, updated_at]);
     return result.rows[0];
 }
 export async function softDeleteTask(taskId, userId) {
     const result = await query(`
         UPDATE tasks 
-        SET is_deleted = true, updated_at = NOW() 
-        WHERE id = $1 AND user_id = $2 AND is_deleted = false
+        SET deleted_at = NOW(), updated_at = NOW() 
+        WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
         RETURNING *;`,
         [taskId, userId]);
     return result.rows[0];
