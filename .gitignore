@@ -1,5 +1,6 @@
 # Claude Code
 plans/
+.claude/
 
 # Dependencies
 node_modules/

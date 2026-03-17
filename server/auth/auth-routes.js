@@ -7,7 +7,7 @@ router.post('/register', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({
-      error: 'Email and password are required' 
+      error: 'Email and password are required'
     });
   }
   try {
@@ -36,15 +36,7 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  try {
-    res.status(200).json({
-      message: 'Logged out successfully'
-    });
-  } catch (err) {
-    res.status(500).json({
-      error: 'Logout failed'
-    });
-  }
+  res.status(200).json({ message: 'Logged out successfully' });
 });
 
 export default router;
