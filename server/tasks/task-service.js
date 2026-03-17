@@ -22,6 +22,7 @@ export async function upsertTask(task, userId) {
         [id, userId, title, description, status, updated_at]);
     return result.rows[0];
 }
+
 export async function softDeleteTask(taskId, userId) {
     const result = await query(`
         UPDATE tasks 
@@ -36,12 +37,12 @@ export async function processBatch(tasks, userId) {
     const results = [];
     for (const task of tasks) {
         if (task.is_deleted) {
-      const deleted = await softDeleteTask(task.id, userId);
-      if (deleted) results.push(deleted);
-    } else {
-      const upserted = await upsertTask(task, userId);
-      if (upserted) results.push(upserted);
+            const deleted = await softDeleteTask(task.id, userId);
+            if (deleted) results.push(deleted);
+        } else {
+            const upserted = await upsertTask(task, userId);
+            if (upserted) results.push(upserted);
+        }
     }
-  }
-  return results;
+    return results;
 }
