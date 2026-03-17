@@ -1,6 +1,7 @@
 // POST /auth/login and /auth/register API calls
 const AUTH_KEY = 'donezo_token';
 const API_BASE = 'http://localhost:3000';
+export const AUTH_PAGE = '/pages/auth/auth.html';
 
 export async function login(email, password) {
   const res = await fetch(`${API_BASE}/auth/login`, {
@@ -8,8 +9,10 @@ export async function login(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) throw new Error('Invalid email or password');
-  const { token } = await res.json();
+  if (!res.ok){
+    const { message } = await res.json();
+    throw new Error(message ?? 'Login failed');
+  }
   localStorage.setItem(AUTH_KEY, token);
 }
 
@@ -19,12 +22,15 @@ export async function register(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) throw new Error('Email already in use');
+  if (!res.ok){
+    const { message } = await res.json();
+    throw new Error(message ?? 'Registration failed');
+  }
 }
 
 export function logout() {
   localStorage.removeItem(AUTH_KEY);
-  window.location.href = '/pages/auth/auth.html';
+  window.location.href = AUTH_PAGE;
 }
 
 export function getToken() {

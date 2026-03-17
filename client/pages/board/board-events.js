@@ -4,7 +4,7 @@ import { CardActions } from '../../components/card/card-actions.js';
 import { HelpModal } from '../../components/modal/help-modal/help-modal.js';
 import { WelcomeModal } from '../../components/modal/welcome-modal/welcome-modal.js';
 import { SeedService } from '../../services/seed-service.js';
-import { isAuthenticated } from '../../services/auth-service.js';
+// import { isAuthenticated } from '../../services/auth-service.js';
 import { handleOnline } from '../../services/sync-service.js';
 
 export class BoardEvents {

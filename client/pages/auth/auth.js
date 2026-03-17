@@ -1,37 +1,47 @@
 // Form submit → auth-service → store JWT → redirect to /
-import { login, register } from '../../services/auth-service.js';
+import { login, register, AUTH_PAGE} from '../../services/auth-service.js';
+
+
+function showError(message) {
+  const errorEl = document.getElementById('AUTH_ERROR');
+  errorEl.textContent = message;
+  errorEl.classList.remove('auth__error--hidden');
+}
 
 function handleLoginSubmit(e) {
   e.preventDefault();
   const email = document.getElementById('LOGIN_EMAIL').value;
   const password = document.getElementById('LOGIN_PASSWORD').value;
 
+  if (!email || !password) {
+    showError('Email and password are required.');
+    return;
+  }
+
   login(email, password)
     .then(() => {
       window.location.href = '/';
     })
-    .catch(err => {
-      const errorEl = document.getElementById('AUTH_ERROR');
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('auth__error--hidden');
-    });
+    .catch(err => showError(err.message));
 }
 
 function handleRegisterSubmit(e) {
   e.preventDefault();
   const email = document.getElementById('REGISTER_EMAIL').value;
   const password = document.getElementById('REGISTER_PASSWORD').value;
+  const confirm = document.getElementById('REWRITE_REGISTER_PASSWORD').value;
+
+   if (password !== confirm) {
+    showError('Passwords do not match.');
+    return;
+  }
 
   register(email, password)
     .then(() => login(email, password))
     .then(() => {
       window.location.href = '/';
     })
-    .catch(err => {
-      const errorEl = document.getElementById('AUTH_ERROR');
-      errorEl.textContent = err.message;
-      errorEl.classList.remove('auth__error--hidden');
-    });
+    .catch(err => showError(err.message));
 }
 
 function handleTabSwitch(tab) {
@@ -61,14 +71,27 @@ function handleStrengthCheck() {
     { width: '100%', color: '#84cc16', text: 'Strong' },
   ];
 
+  const allClasses = ['strength--weak', 'strength--fair', 'strength--good', 'strength--strong'];
+  fill.classList.remove(...allClasses);
+  label.classList.remove(...allClasses);
+
   const level = levels[strength];
   fill.style.width = level.width;
-  fill.style.background = level.color;
+  if (level.cls) {
+    fill.classList.add(level.cls);
+    label.classList.add(level.cls);
+  }
   label.textContent = level.text;
-  label.style.color = level.color;
+
+  // const level = levels[strength];
+  // fill.style.width = level.width;
+  // fill.style.background = level.color;
+  // label.textContent = level.text;
+  // label.style.color = level.color;
 }
 
 document.getElementById('LOGIN_FORM').addEventListener('submit', handleLoginSubmit);
 document.getElementById('REGISTER_FORM').addEventListener('submit', handleRegisterSubmit);
 document.getElementById('LOGIN_TAB').addEventListener('click', () => handleTabSwitch('login'));
 document.getElementById('REGISTER_TAB').addEventListener('click', () => handleTabSwitch('register'));
+document.getElementById('REGISTER_PASSWORD').addEventListener('input', handleStrengthCheck);
