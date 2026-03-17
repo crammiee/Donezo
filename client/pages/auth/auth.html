@@ -4,13 +4,39 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Donezo — Sign in</title>
-    <link rel="stylesheet" href="/styles/base.css" />
-    <link rel="stylesheet" href="/pages/auth/auth.css" />
+    <link rel="stylesheet" href="auth.css" />
+    <link rel="stylesheet" href="../../styles/base.css" />
   </head>
   <body>
     <main class="auth-container">
-      <!-- login / register forms go here -->
+      <div class="auth">
+        <div class="auth__card">
+          <h1 class="auth__title">Donezo</h1>
+          <div class="auth__tabs">
+            <button class="auth__tab auth__tab--active" data-tab="login" id="LOGIN_TAB">Login</button>
+            <button class="auth__tab" data-tab="register" id="REGISTER_TAB">Register</button>
+          </div>
+          <form class="auth__form" id="LOGIN_FORM">
+            <input class="auth__input" id="LOGIN_EMAIL" type="email" placeholder="Email" required />
+            <input class="auth__input" id="LOGIN_PASSWORD" type="password" placeholder="Password" required />
+            <button class="auth__btn auth__btn--primary" id="LOGIN_SUBMIT">Login</button>
+          </form>
+          <form class="auth__form auth__form--hidden" id="REGISTER_FORM">
+            <input class="auth__input" id="REGISTER_EMAIL" type="email" placeholder="Email" required />
+            <input class="auth__input" id="REGISTER_PASSWORD" type="password" placeholder="Password" required />
+            <div class="auth__strength">
+              <div class="auth__strength-bar">
+                <div class="auth__strength-fill" id="STRENGTH_FILL"></div>
+              </div>
+              <span class="auth__strength-label" id="STRENGTH_LABEL"></span>
+            </div>
+            <input class="auth__input" id="REWRITE_REGISTER_PASSWORD" type="password" placeholder="Confirm Password" required />
+            <button class="auth__btn auth__btn--primary" id="REGISTER_SUBMIT">Register</button>
+          </form>
+          <p class="auth__error auth__error--hidden" id="AUTH_ERROR"></p>
+        </div>
+      </div>
     </main>
-    <script type="module" src="/pages/auth/auth.js"></script>
+    <script type="module" src="auth.js"></script>
   </body>
 </html>
