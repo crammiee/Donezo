@@ -10,8 +10,8 @@ export async function login(email, password) {
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    const { message } = await res.json();
-    throw new Error(message ?? 'Login failed');
+    const { error } = await res.json();
+    throw new Error(error ?? 'Login failed');
   }
   const { token } = await res.json();
   localStorage.setItem(AUTH_KEY, token);
@@ -24,8 +24,8 @@ export async function register(email, password) {
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
-    const { message } = await res.json();
-    throw new Error(message ?? 'Registration failed');
+    const { error } = await res.json();
+    throw new Error(error ?? 'Registration failed');
   }
 }
 
