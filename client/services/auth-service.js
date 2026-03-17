@@ -10,9 +10,9 @@ export async function login(email, password) {
     body: JSON.stringify({ email, password }),
   });
   if (!res.ok){
-    const { message } = await res.json();
     throw new Error(message ?? 'Login failed');
   }
+  const { token } = data;
   localStorage.setItem(AUTH_KEY, token);
 }
 

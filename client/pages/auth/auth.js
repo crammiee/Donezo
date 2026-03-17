@@ -64,11 +64,11 @@ function handleStrengthCheck() {
   if (/[^A-Za-z0-9]/.test(val)) strength++;
 
   const levels = [
-    { width: '0%',   color: '#e4e4e7', text: '' },
-    { width: '25%',  color: '#f87171', text: 'Weak' },
-    { width: '50%',  color: '#fb923c', text: 'Fair' },
-    { width: '75%',  color: '#facc15', text: 'Good' },
-    { width: '100%', color: '#84cc16', text: 'Strong' },
+    { width: '0%',   cls: '',                text: '' },
+    { width: '25%',  cls: 'strength--weak',  text: 'Weak' },
+    { width: '50%',  cls: 'strength--fair',  text: 'Fair' },
+    { width: '75%',  cls: 'strength--good',  text: 'Good' },
+    { width: '100%', cls: 'strength--strong',text: 'Strong' },
   ];
 
   const allClasses = ['strength--weak', 'strength--fair', 'strength--good', 'strength--strong'];
@@ -82,12 +82,6 @@ function handleStrengthCheck() {
     label.classList.add(level.cls);
   }
   label.textContent = level.text;
-
-  // const level = levels[strength];
-  // fill.style.width = level.width;
-  // fill.style.background = level.color;
-  // label.textContent = level.text;
-  // label.style.color = level.color;
 }
 
 document.getElementById('LOGIN_FORM').addEventListener('submit', handleLoginSubmit);

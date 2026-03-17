@@ -59,7 +59,7 @@
 .auth__tabs {
   display: flex;
   gap: .3rem;
-  background: #f4f4f5;
+  background: var(--color-bg);
   border-radius: var(--radius);
   padding: .3rem;
   margin: 1.4rem 0 1.6rem;
@@ -115,7 +115,7 @@
   transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
 }
  
-.auth__input::placeholder { color: #a1a1aa; }
+.auth__input::placeholder { color: var(--color-text-muted); }
  
 .auth__input:hover {
   border-color: var(--color-border);
@@ -159,7 +159,7 @@
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 8px;
-  color: #dc2626;
+  color: var(--color-danger);
   font-family: 'DM Sans', sans-serif;
   font-size: .8rem;
   text-align: center;
