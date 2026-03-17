@@ -1,6 +1,6 @@
-// POST /auth/login and /auth/register API calls
+import { API_BASE } from '../config.js';
+
 const AUTH_KEY = 'donezo_token';
-const API_BASE = 'http://localhost:3000';
 export const AUTH_PAGE = '/pages/auth/auth.html';
 
 export async function login(email, password) {
@@ -9,10 +9,11 @@ export async function login(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok){
+  if (!res.ok) {
+    const { message } = await res.json();
     throw new Error(message ?? 'Login failed');
   }
-  const { token } = data;
+  const { token } = await res.json();
   localStorage.setItem(AUTH_KEY, token);
 }
 
@@ -22,7 +23,7 @@ export async function register(email, password) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok){
+  if (!res.ok) {
     const { message } = await res.json();
     throw new Error(message ?? 'Registration failed');
   }

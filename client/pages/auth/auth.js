@@ -31,7 +31,7 @@ function handleRegisterSubmit(e) {
   const password = document.getElementById('REGISTER_PASSWORD').value;
   const confirm = document.getElementById('REWRITE_REGISTER_PASSWORD').value;
 
-   if (password !== confirm) {
+  if (password !== confirm) {
     showError('Passwords do not match.');
     return;
   }

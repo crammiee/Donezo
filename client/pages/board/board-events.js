@@ -4,7 +4,7 @@ import { CardActions } from '../../components/card/card-actions.js';
 import { HelpModal } from '../../components/modal/help-modal/help-modal.js';
 import { WelcomeModal } from '../../components/modal/welcome-modal/welcome-modal.js';
 import { SeedService } from '../../services/seed-service.js';
-import { handleOnline } from '../../services/sync-service.js';
+import { isAuthenticated, AUTH_PAGE } from '../../services/auth-service.js';
 
 export class BoardEvents {
   constructor(boardDOM, storage) {
@@ -26,7 +26,7 @@ export class BoardEvents {
 
   async init() {
 
-    // if (!isAuthenticated()) { window.location.href = '/pages/auth/auth.html'; return; }
+    if (!isAuthenticated()) { window.location.href = AUTH_PAGE; return; }
 
     await this.modal.init();
     await this.deleteModal.init();
