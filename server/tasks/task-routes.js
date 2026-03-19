@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth-middleware.js';
 import { getTasksByUser, processBatch } from './task-service.js';
+import { broadcastTaskEvent } from '../socket-service.js';
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   try {
     const tasks = await processBatch(req.body.tasks, req.userId);
+    broadcastTaskEvent(req.userId, 'tasks:updated', tasks, req.headers['x-socket-id']);
     res.status(200).json({ tasks });
   } catch (err) {
     console.error(err);

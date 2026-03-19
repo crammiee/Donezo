@@ -4,7 +4,9 @@ import { CardActions } from '../../components/card/card-actions.js';
 import { HelpModal } from '../../components/modal/help-modal/help-modal.js';
 import { WelcomeModal } from '../../components/modal/welcome-modal/welcome-modal.js';
 import { SeedService } from '../../services/seed-service.js';
-import { isAuthenticated, AUTH_PAGE } from '../../services/auth-service.js';
+import { isAuthenticated, AUTH_PAGE, getToken } from '../../services/auth-service.js';
+import { connectSocket } from '../../services/socket-service.js';
+import { API_BASE } from '../../config.js';
 
 export class BoardEvents {
   constructor(boardDOM, storage) {
@@ -28,11 +30,13 @@ export class BoardEvents {
 
     if (!isAuthenticated()) { window.location.href = AUTH_PAGE; return; }
 
+    connectSocket((tasks) => this.handleRemoteTaskUpdate(tasks));
+
     await this.modal.init();
     await this.deleteModal.init();
 
-    const firstVisit = this.seedService.isFirstVisit();
-    if (firstVisit) this.seedService.seed(this.storage);
+    const isNewAccount = await this.fetchAndSyncTasks();
+    if (isNewAccount) this.seedService.seed(this.storage);
 
     await this.loadAndRenderTasks();
     this.attachColumnDropListeners();
@@ -42,9 +46,26 @@ export class BoardEvents {
     document.addEventListener('mousemove', () => this.handleBoardMouseMove());
     document.getElementById('HELP_BTN').addEventListener('click', () => this.handleHelpOpen());
 
-    if (firstVisit) {
-      this.welcomeModal.onDismiss = () => this.seedService.markVisited();
+    if (isNewAccount) {
+      this.welcomeModal.onDismiss = () => {};
       await this.welcomeModal.open();
+    }
+  }
+
+  async fetchAndSyncTasks() {
+    try {
+      const res = await fetch(`${API_BASE}/tasks`, {
+        headers: { 'Authorization': `Bearer ${getToken()}` },
+      });
+      if (!res.ok) return false;
+      const { tasks } = await res.json();
+      if (tasks.length > 0) {
+        this.storage.save(tasks);
+        return false;
+      }
+      return this.storage.load().length === 0;
+    } catch {
+      return false;
     }
   }
 
@@ -124,5 +145,31 @@ export class BoardEvents {
 
   handleHelpOpen() {
     this.helpModal.open();
+  }
+
+  async handleRemoteTaskUpdate(tasks) {
+    for (const task of tasks) {
+      const existing = this.cardActions.findCard(task.id);
+      if (task.deleted_at) {
+        if (existing) {
+          this.boardDOM.unmountCard(existing);
+          this.cardActions.cards = this.cardActions.cards.filter((c) => c.id !== task.id);
+        }
+      } else if (existing) {
+        existing.title = task.title;
+        existing.description = task.description;
+        if (existing.status !== task.status) {
+          this.boardDOM.unmountCard(existing);
+          existing.status = task.status;
+          await this.boardDOM.mountCard(existing);
+        } else {
+          existing.$element.querySelector('.card__title').textContent = task.title;
+        }
+      } else {
+        const card = this.cardActions.createCardFromRemote(task);
+        await this.boardDOM.mountCard(card);
+      }
+    }
+    this.storage.save(this.cardActions.getAllCards());
   }
 }

@@ -1,4 +1,5 @@
 import { Card } from './card.js';
+import { syncTasks } from '../../services/task-api-service.js';
 
 const COLUMN_ORDER = ['todo', 'doing', 'done'];
 
@@ -8,6 +9,7 @@ export class CardActions {
     this.storage = storage;
     this.modal = modal;
     this.deleteModal = deleteModal;
+    this.cards = [];
     this.onDragStart = null;
     this.onDragEnd = null;
     this.onHover = null;
@@ -33,6 +35,7 @@ export class CardActions {
     card.updateContent(data.title, data.description);
     card.updateStatus(data.status);
     this.storage.update(card.toData());
+    syncTasks([card.toData()]);
     if (data.status !== oldStatus) await this.moveCardToColumn(card, oldStatus);
   }
 
@@ -44,7 +47,9 @@ export class CardActions {
   confirmDelete(card) {
     const oldStatus = card.status;
     this.storage.delete(card.id);
+    syncTasks([{ id: card.id, is_deleted: true }]);
     card.remove();
+    this.cards = this.cards.filter((c) => c.id !== card.id);
     this.boardDOM.updateColumnCount(oldStatus);
   }
 
@@ -55,6 +60,7 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update(card.toData());
+    syncTasks([card.toData()]);
     await this.moveCardToColumn(card, oldStatus);
     card.$element.focus();
   }
@@ -65,6 +71,7 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update(card.toData());
+    syncTasks([card.toData()]);
     await this.moveCardToColumn(card, oldStatus);
   }
 
@@ -77,15 +84,33 @@ export class CardActions {
   createCard(data) {
     const task = { id: this.generateId(), ...data };
     this.storage.add(task);
+    syncTasks([task]);
     const card = new Card(task);
     this.assign(card);
+    this.cards.push(card);
     return card;
+  }
+
+  createCardFromRemote(task) {
+    const card = new Card(task);
+    this.assign(card);
+    this.cards.push(card);
+    return card;
+  }
+
+  findCard(id) {
+    return this.cards.find((c) => c.id === id) || null;
+  }
+
+  getAllCards() {
+    return this.cards.map((c) => c.toData());
   }
 
   fromStorage() {
     return this.storage.load().map((taskData) => {
       const card = new Card(taskData);
       this.assign(card);
+      this.cards.push(card);
       return card;
     });
   }
@@ -98,6 +123,6 @@ export class CardActions {
   }
 
   generateId() {
-    return `task_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    return crypto.randomUUID();
   }
 }
