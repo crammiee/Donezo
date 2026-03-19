@@ -16,6 +16,12 @@ export class BoardDOM {
     this.updateColumnCount(card.status);
   }
 
+  unmountCard(card) {
+    const oldStatus = card.status;
+    card.remove();
+    this.updateColumnCount(oldStatus);
+  }
+
   highlightColumn($targetColumn) {
     this.clearColumnHighlights();
     if ($targetColumn) $targetColumn.classList.add('column--drag-over');
