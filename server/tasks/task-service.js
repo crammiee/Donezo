@@ -7,19 +7,20 @@ export async function getTasksByUser(userId) {
 }
 
 export async function upsertTask(task, userId) {
-    const { id, title, description, status, updated_at } = task;
+    const { id, title, description, status, position, updated_at } = task;
     const result = await query(`
-        INSERT INTO tasks (id, user_id, title, description, status, updated_at)
-        VALUES ($1, $2, $3, $4, $5, $6)
-        ON CONFLICT (id) 
+        INSERT INTO tasks (id, user_id, title, description, status, position, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        ON CONFLICT (id)
         DO UPDATE SET
             title = EXCLUDED.title,
             description = EXCLUDED.description,
             status = EXCLUDED.status,
+            position = EXCLUDED.position,
             updated_at = EXCLUDED.updated_at
         WHERE tasks.updated_at < EXCLUDED.updated_at
         RETURNING *;`,
-        [id, userId, title, description, status, updated_at]);
+        [id, userId, title, description, status, position ?? 0, updated_at]);
     return result.rows[0];
 }
 

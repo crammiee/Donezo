@@ -3,11 +3,12 @@ import { loadTemplate } from '../../utils/dom-utils.js';
 const TEMPLATE_PATH = '/components/card/card.html';
 
 export class Card {
-  constructor({ id, title, description, status }) {
+  constructor({ id, title, description, status, position }) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.status = status;
+    this.position = position ?? 0;
     this.$element = null;
   }
 
@@ -103,6 +104,7 @@ export class Card {
       title: this.title,
       description: this.description,
       status: this.status,
+      position: this.position,
     };
   }
 }
