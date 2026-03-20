@@ -65,12 +65,32 @@ function handleRegisterSubmit(e) {
     });
 }
 
-function handleTabSwitch(tab) {
+function switchTo(tab) {
   const isLogin = tab === 'login';
+  const heading = document.getElementById('FORM_HEADING');
+  const switchText = document.getElementById('AUTH_SWITCH');
+  const tabs = document.querySelector('.auth__tabs');
+
   document.getElementById('LOGIN_TAB').classList.toggle('auth__tab--active', isLogin);
   document.getElementById('REGISTER_TAB').classList.toggle('auth__tab--active', !isLogin);
   document.getElementById('LOGIN_FORM').classList.toggle('auth__form--hidden', !isLogin);
   document.getElementById('REGISTER_FORM').classList.toggle('auth__form--hidden', isLogin);
+
+  if (isLogin) {
+    heading.textContent = 'Welcome back';
+    switchText.innerHTML = 'Don\'t have an account? <a href="#" class="welcome__switch-link" id="SWITCH_LINK">Sign up</a>';
+    tabs.classList.remove('auth__tabs--hidden');
+  } else {
+    heading.textContent = 'Sign up to get started';
+    switchText.innerHTML = 'Already have an account? <a href="#" class="welcome__switch-link" id="SWITCH_LINK">Sign in</a>';
+    tabs.classList.add('auth__tabs--hidden');
+  }
+
+  document.getElementById('SWITCH_LINK').addEventListener('click', (e) => {
+    e.preventDefault();
+    switchTo(isLogin ? 'register' : 'login');
+  });
+
   hideError();
 }
 
@@ -111,7 +131,11 @@ function handleStrengthCheck() {
 
 document.getElementById('LOGIN_FORM').addEventListener('submit', handleLoginSubmit);
 document.getElementById('REGISTER_FORM').addEventListener('submit', handleRegisterSubmit);
-document.getElementById('LOGIN_TAB').addEventListener('click', () => handleTabSwitch('login'));
-document.getElementById('REGISTER_TAB').addEventListener('click', () => handleTabSwitch('register'));
+document.getElementById('LOGIN_TAB').addEventListener('click', () => switchTo('login'));
+document.getElementById('REGISTER_TAB').addEventListener('click', () => switchTo('register'));
+document.getElementById('SWITCH_LINK').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchTo('login');
+});
 document.getElementById('REGISTER_PASSWORD').addEventListener('input', handleStrengthCheck);
 document.querySelectorAll('.auth__input').forEach(input => input.addEventListener('focus', hideError));
