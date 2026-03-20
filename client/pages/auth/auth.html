@@ -3,26 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Donezo — Sign in</title>
+    <title>Donezo — Welcome</title>
     <link rel="stylesheet" href="auth.css" />
     <link rel="stylesheet" href="../../styles/base.css" />
   </head>
   <body>
-    <main class="auth-container">
-      <div class="auth">
-        <div class="auth__card">
+    <main class="welcome">
+      <div class="welcome__left">
+        <div class="welcome__branding">
           <h1 class="auth__title">Donezo</h1>
-          <p class="auth__subtitle">Your personal kanban board</p>
-          <div class="auth__tabs">
-            <button class="auth__tab auth__tab--active" data-tab="login" id="LOGIN_TAB">Login</button>
-            <button class="auth__tab" data-tab="register" id="REGISTER_TAB">Register</button>
+          <p class="welcome__tagline">Stay organized.<br />Finish fast.</p>
+        </div>
+      </div>
+      <div class="welcome__right">
+        <div class="auth__card">
+          <h2 class="welcome__heading" id="FORM_HEADING">Sign up to get started</h2>
+          <div class="auth__tabs auth__tabs--hidden">
+            <button class="auth__tab" data-tab="login" id="LOGIN_TAB">Login</button>
+            <button class="auth__tab auth__tab--active" data-tab="register" id="REGISTER_TAB">Register</button>
           </div>
-          <form class="auth__form" id="LOGIN_FORM">
+          <form class="auth__form auth__form--hidden" id="LOGIN_FORM">
             <input class="auth__input" id="LOGIN_EMAIL" type="email" placeholder="Email" required />
             <input class="auth__input" id="LOGIN_PASSWORD" type="password" placeholder="Password" required />
             <button class="auth__btn auth__btn--primary" id="LOGIN_SUBMIT" data-label="Login">Login</button>
           </form>
-          <form class="auth__form auth__form--hidden" id="REGISTER_FORM">
+          <form class="auth__form" id="REGISTER_FORM">
             <input class="auth__input" id="REGISTER_EMAIL" type="email" placeholder="Email" required />
             <input class="auth__input" id="REGISTER_PASSWORD" type="password" placeholder="Password" required />
             <div class="auth__strength">
@@ -36,9 +41,13 @@
             <button class="auth__btn auth__btn--primary" id="REGISTER_SUBMIT" data-label="Register">Register</button>
           </form>
           <p class="auth__error auth__error--hidden" id="AUTH_ERROR"></p>
+          <p class="welcome__switch" id="AUTH_SWITCH">
+            Already have an account? <a href="#" class="welcome__switch-link" id="SWITCH_LINK">Sign in</a>
+          </p>
         </div>
       </div>
     </main>
+    <footer class="welcome__footer">&copy; 2026 Irror 126 Web Eng</footer>
     <script type="module" src="auth.js"></script>
   </body>
 </html>
