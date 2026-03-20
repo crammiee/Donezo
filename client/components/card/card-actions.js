@@ -65,20 +65,20 @@ export class CardActions {
     card.$element.focus();
   }
 
-  async handleDrop(card, newStatus) {
+  async handleDrop(card, newStatus, referenceCard) {
     if (!newStatus || newStatus === card.status) return;
 
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update(card.toData());
     syncTasks([card.toData()]);
-    await this.moveCardToColumn(card, oldStatus);
+    await this.moveCardToColumn(card, oldStatus, referenceCard);
   }
 
-  async moveCardToColumn(card, oldStatus) {
+  async moveCardToColumn(card, oldStatus, referenceCard) {
     card.$element.remove();
     this.boardDOM.updateColumnCount(oldStatus);
-    await this.boardDOM.mountCard(card);
+    await this.boardDOM.mountCard(card, referenceCard);
   }
 
   createCard(data) {
@@ -100,6 +100,10 @@ export class CardActions {
 
   findCard(id) {
     return this.cards.find((c) => c.id === id) || null;
+  }
+
+  findCardByElement($element) {
+    return this.cards.find((c) => c.$element === $element) || null;
   }
 
   getAllCards() {

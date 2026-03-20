@@ -6,6 +6,7 @@ import { WelcomeModal } from '../../components/modal/welcome-modal/welcome-modal
 import { SeedService } from '../../services/seed-service.js';
 import { isAuthenticated, AUTH_PAGE, getToken } from '../../services/auth-service.js';
 import { connectSocket } from '../../services/socket-service.js';
+import { syncTasks } from '../../services/task-api-service.js';
 import { API_BASE } from '../../config.js';
 
 export class BoardEvents {
@@ -20,6 +21,7 @@ export class BoardEvents {
     this.cardActions = new CardActions(boardDOM, storage, this.modal, this.deleteModal);
     this.isUsingKeyboard = false;
     this.draggedCard = null;
+    this.dropTarget = null;
 
     this.cardActions.onDragStart = (card) => this.handleCardDragStart(card);
     this.cardActions.onDragEnd = () => this.handleCardDragEnd();
@@ -60,6 +62,14 @@ export class BoardEvents {
       if (!res.ok) return false;
       const { tasks } = await res.json();
       if (tasks.length > 0) {
+        const local = this.storage.load();
+        const positionMap = {};
+        for (const t of local) {
+          if (t.position != null) positionMap[t.id] = t.position;
+        }
+        for (const t of tasks) {
+          if (positionMap[t.id] != null) t.position = positionMap[t.id];
+        }
         this.storage.save(tasks);
         return false;
       }
@@ -71,6 +81,7 @@ export class BoardEvents {
 
   async loadAndRenderTasks() {
     const cards = this.cardActions.fromStorage();
+    cards.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     for (const card of cards) {
       await this.boardDOM.mountCard(card);
     }
@@ -102,22 +113,87 @@ export class BoardEvents {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     this.boardDOM.highlightColumn(e.currentTarget);
+    this.updateDropTarget(e.currentTarget, e.clientY);
   }
 
   handleColumnDragLeave(e) {
-    if (!e.currentTarget.contains(e.relatedTarget)) this.boardDOM.clearColumnHighlights();
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      this.boardDOM.clearColumnHighlights();
+      this.clearDropIndicator();
+    }
   }
 
   async handleColumnDrop(e) {
     e.preventDefault();
     this.boardDOM.clearColumnHighlights();
+    this.clearDropIndicator();
     if (!this.draggedCard) return;
 
     const newStatus = e.currentTarget.dataset.status;
-    if (newStatus === this.draggedCard.status) return;
+    const referenceCard = this.dropTarget;
+    this.dropTarget = null;
 
-    await this.cardActions.handleDrop(this.draggedCard, newStatus);
+    if (newStatus === this.draggedCard.status) {
+      this.boardDOM.reorderCard(this.draggedCard, referenceCard);
+      this.saveColumnOrder(newStatus);
+    } else {
+      await this.cardActions.handleDrop(this.draggedCard, newStatus, referenceCard);
+      this.saveColumnOrder(newStatus);
+    }
     this.draggedCard = null;
+  }
+
+  updateDropTarget($column, clientY) {
+    this.clearDropIndicator();
+    const cards = Array.from($column.querySelectorAll('.card:not(.card--dragging)'));
+    if (cards.length === 0) { this.dropTarget = null; return; }
+
+    let closest = null;
+    let closestOffset = Infinity;
+    for (const $card of cards) {
+      const rect = $card.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      const offset = clientY - midY;
+      if (offset < 0 && Math.abs(offset) < closestOffset) {
+        closestOffset = Math.abs(offset);
+        closest = $card;
+      }
+    }
+
+    if (closest) {
+      closest.classList.add('card--drop-above');
+      this.dropTarget = this.cardActions.findCardByElement(closest);
+    } else {
+      const lastCard = cards[cards.length - 1];
+      lastCard.classList.add('card--drop-below');
+      this.dropTarget = null;
+    }
+  }
+
+  clearDropIndicator() {
+    document.querySelectorAll('.card--drop-above, .card--drop-below').forEach(($c) => {
+      $c.classList.remove('card--drop-above', 'card--drop-below');
+    });
+  }
+
+  saveColumnOrder(status) {
+    const $column = this.boardDOM.getColumnEl(status);
+    const orderedIds = Array.from($column.querySelectorAll('.card')).map(($c) => $c.dataset.id);
+    const allTasks = this.storage.load();
+    const updatedTasks = [];
+    let position = 0;
+    for (const id of orderedIds) {
+      const task = allTasks.find((t) => t.id === id);
+      if (task) task.position = position;
+      const card = this.cardActions.findCard(id);
+      if (card) {
+        card.position = position;
+        updatedTasks.push(card.toData());
+      }
+      position++;
+    }
+    this.storage.save(allTasks);
+    syncTasks(updatedTasks);
   }
 
   handleAddButtonClick(e) {
@@ -148,6 +224,7 @@ export class BoardEvents {
   }
 
   async handleRemoteTaskUpdate(tasks) {
+    const columnsToReorder = new Set();
     for (const task of tasks) {
       const existing = this.cardActions.findCard(task.id);
       if (task.deleted_at) {
@@ -158,6 +235,7 @@ export class BoardEvents {
       } else if (existing) {
         existing.title = task.title;
         existing.description = task.description;
+        existing.position = task.position ?? existing.position;
         if (existing.status !== task.status) {
           this.boardDOM.unmountCard(existing);
           existing.status = task.status;
@@ -165,11 +243,27 @@ export class BoardEvents {
         } else {
           existing.$element.querySelector('.card__title').textContent = task.title;
         }
+        columnsToReorder.add(existing.status);
       } else {
         const card = this.cardActions.createCardFromRemote(task);
         await this.boardDOM.mountCard(card);
+        columnsToReorder.add(card.status);
       }
     }
+    for (const status of columnsToReorder) {
+      this.reorderColumnByPosition(status);
+    }
     this.storage.save(this.cardActions.getAllCards());
+  }
+
+  reorderColumnByPosition(status) {
+    const $column = this.boardDOM.getColumnEl(status);
+    const $addBtn = $column.querySelector('.column__add-btn');
+    const cards = this.cardActions.cards
+      .filter((c) => c.status === status && c.$element)
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    for (const card of cards) {
+      $column.insertBefore(card.$element, $addBtn);
+    }
   }
 }

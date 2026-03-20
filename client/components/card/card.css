@@ -63,6 +63,16 @@
   transform: scale(0.995);
 }
 
+.card--drop-above {
+  border-top: 2px solid var(--color-accent);
+  margin-top: -1px;
+}
+
+.card--drop-below {
+  border-bottom: 2px solid var(--color-accent);
+  margin-bottom: -1px;
+}
+
 .card:not(.card--dragging) {
   cursor: grab;
 }
