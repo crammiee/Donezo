@@ -13,6 +13,7 @@ export class CardActions {
     this.onDragStart = null;
     this.onDragEnd = null;
     this.onHover = null;
+    this.onChange = null;
   }
 
   assign(card) {
@@ -27,16 +28,22 @@ export class CardActions {
 
   handleEdit(card) {
     this.modal.onConfirm = async (data) => this.confirmEdit(card, data);
-    this.modal.open(card.status, card.toData());
+    const allTags = this.collectAllTags();
+    this.modal.open(card.status, card.toData(), allTags);
+  }
+
+  collectAllTags() {
+    return [...new Set(this.cards.flatMap(c => c.tags || []))];
   }
 
   async confirmEdit(card, data) {
     const oldStatus = card.status;
-    card.updateContent(data.title, data.description);
+    card.updateContent(data.title, data.description, data.due_date, data.tags);
     card.updateStatus(data.status);
     this.storage.update(card.toData());
     syncTasks([card.toData()]);
     if (data.status !== oldStatus) await this.moveCardToColumn(card, oldStatus);
+    this.onChange?.();
   }
 
   handleDelete(card) {
@@ -51,6 +58,7 @@ export class CardActions {
     card.remove();
     this.cards = this.cards.filter((c) => c.id !== card.id);
     this.boardDOM.updateColumnCount(oldStatus);
+    this.onChange?.();
   }
 
   async handleMove(card, direction) {

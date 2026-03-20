@@ -9,6 +9,7 @@ import { UserMenu } from '../../components/user-menu/user-menu.js';
 import { connectSocket } from '../../services/socket-service.js';
 import { syncTasks } from '../../services/task-api-service.js';
 import { API_BASE } from '../../config.js';
+import { getTagColor } from '../../utils/tag-colors.js';
 
 export class BoardEvents {
   constructor(boardDOM, storage) {
@@ -24,10 +25,13 @@ export class BoardEvents {
     this.isUsingKeyboard = false;
     this.draggedCard = null;
     this.dropTarget = null;
+    this.activeFilterTag = null;
+    this.$tagFilters = null;
 
     this.cardActions.onDragStart = (card) => this.handleCardDragStart(card);
     this.cardActions.onDragEnd = () => this.handleCardDragEnd();
     this.cardActions.onHover = (card) => this.handleCardHover(card);
+    this.cardActions.onChange = () => { this.renderTagFilters(); this.applyTagFilter(); };
   }
 
   async init() {
@@ -44,6 +48,8 @@ export class BoardEvents {
     if (isNewAccount) this.seedService.seed(this.storage);
 
     await this.loadAndRenderTasks();
+    this.$tagFilters = document.getElementById('TAG_FILTERS');
+    this.renderTagFilters();
     this.attachColumnDropListeners();
 
     document.addEventListener('click', (e) => this.handleAddButtonClick(e));
@@ -94,8 +100,11 @@ export class BoardEvents {
     this.modal.onConfirm = async (data) => {
       const card = this.cardActions.createCard(data);
       await this.boardDOM.mountCard(card);
+      this.renderTagFilters();
+      this.applyTagFilter();
     };
-    this.modal.open(status);
+    const allTags = this.cardActions.collectAllTags();
+    this.modal.open(status, null, allTags);
   }
 
   handleCardDragStart(card) {
@@ -236,15 +245,15 @@ export class BoardEvents {
           this.cardActions.cards = this.cardActions.cards.filter((c) => c.id !== task.id);
         }
       } else if (existing) {
-        existing.title = task.title;
-        existing.description = task.description;
+        existing.due_date = task.due_date ?? existing.due_date;
+        existing.tags = task.tags ?? existing.tags;
         existing.position = task.position ?? existing.position;
         if (existing.status !== task.status) {
           this.boardDOM.unmountCard(existing);
           existing.status = task.status;
           await this.boardDOM.mountCard(existing);
         } else {
-          existing.$element.querySelector('.card__title').textContent = task.title;
+          existing.updateContent(task.title, task.description, task.due_date, task.tags);
         }
         columnsToReorder.add(existing.status);
       } else {
@@ -257,6 +266,8 @@ export class BoardEvents {
       this.reorderColumnByPosition(status);
     }
     this.storage.save(this.cardActions.getAllCards());
+    this.renderTagFilters();
+    this.applyTagFilter();
   }
 
   reorderColumnByPosition(status) {
@@ -267,6 +278,43 @@ export class BoardEvents {
       .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     for (const card of cards) {
       $column.insertBefore(card.$element, $addBtn);
+    }
+  }
+
+  // --- Tag Filters ---
+
+  renderTagFilters() {
+    if (!this.$tagFilters) return;
+    this.$tagFilters.innerHTML = '';
+    const allTags = this.cardActions.collectAllTags();
+    for (const tag of allTags) {
+      const color = getTagColor(tag);
+      const $btn = document.createElement('button');
+      $btn.className = 'filter-tag';
+      if (this.activeFilterTag === tag) $btn.classList.add('filter-tag--active');
+      $btn.textContent = tag;
+      $btn.style.backgroundColor = color.bg;
+      $btn.style.color = color.text;
+      $btn.addEventListener('click', () => this.toggleTagFilter(tag));
+      this.$tagFilters.appendChild($btn);
+    }
+  }
+
+  toggleTagFilter(tag) {
+    this.activeFilterTag = this.activeFilterTag === tag ? null : tag;
+    this.applyTagFilter();
+    this.renderTagFilters();
+  }
+
+  applyTagFilter() {
+    for (const card of this.cardActions.cards) {
+      if (!card.$element) continue;
+      if (!this.activeFilterTag) {
+        card.$element.style.display = '';
+      } else {
+        const hasTag = (card.tags || []).includes(this.activeFilterTag);
+        card.$element.style.display = hasTag ? '' : 'none';
+      }
     }
   }
 }

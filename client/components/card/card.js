@@ -1,14 +1,17 @@
 import { loadTemplate } from '../../utils/dom-utils.js';
+import { getTagColor } from '../../utils/tag-colors.js';
 
 const TEMPLATE_PATH = '/components/card/card.html';
 
 export class Card {
-  constructor({ id, title, description, status, position }) {
+  constructor({ id, title, description, status, position, due_date, tags }) {
     this.id = id;
     this.title = title;
     this.description = description;
     this.status = status;
     this.position = position ?? 0;
+    this.due_date = due_date || null;
+    this.tags = tags || [];
     this.$element = null;
   }
 
@@ -26,6 +29,37 @@ export class Card {
     this.$element.setAttribute('aria-label', `Task: ${this.title}`);
     this.$element.querySelector('.card__title').textContent = this.title;
     this.$element.querySelector('.card__description').textContent = this.description;
+    this.renderTags();
+    this.renderDueDate();
+  }
+
+  renderTags() {
+    const $tags = this.$element.querySelector('.card__tags');
+    $tags.innerHTML = '';
+    if (!this.tags.length) return;
+    for (const tag of this.tags) {
+      const color = getTagColor(tag);
+      const $pill = document.createElement('span');
+      $pill.className = 'card__tag';
+      $pill.textContent = tag;
+      $pill.style.backgroundColor = color.bg;
+      $pill.style.color = color.text;
+      $tags.appendChild($pill);
+    }
+  }
+
+  renderDueDate() {
+    const $due = this.$element.querySelector('.card__due-date');
+    if (!this.due_date) {
+      $due.style.display = 'none';
+      return;
+    }
+    const date = new Date(this.due_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    $due.style.display = '';
+    $due.textContent = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    $due.classList.toggle('card__due-date--overdue', date < today);
   }
 
   attachEventListeners() {
@@ -82,12 +116,16 @@ export class Card {
     this.focusSibling(1);
   }
 
-  updateContent(title, description) {
+  updateContent(title, description, due_date, tags) {
     this.title = title;
     this.description = description;
+    this.due_date = due_date ?? this.due_date;
+    this.tags = tags ?? this.tags;
     this.$element.querySelector('.card__title').textContent = title;
     this.$element.querySelector('.card__description').textContent = description;
     this.$element.setAttribute('aria-label', `Task: ${title}`);
+    this.renderTags();
+    this.renderDueDate();
   }
 
   updateStatus(newStatus) {
@@ -105,6 +143,8 @@ export class Card {
       description: this.description,
       status: this.status,
       position: this.position,
+      due_date: this.due_date,
+      tags: this.tags,
     };
   }
 }
