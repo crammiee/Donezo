@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS tasks (
   description TEXT,
   status      TEXT        NOT NULL CHECK (status IN ('todo', 'doing', 'done')),
   position    INTEGER     NOT NULL DEFAULT 0,
+  due_date    DATE,
+  tags        TEXT[]      DEFAULT '{}',
   deleted_at  TIMESTAMPTZ,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()

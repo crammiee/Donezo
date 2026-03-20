@@ -30,6 +30,36 @@
   white-space: pre-wrap;
 }
 
+.card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.4rem;
+}
+
+.card__tags:empty {
+  display: none;
+}
+
+.card__tag {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  font-weight: 600;
+}
+
+.card__due-date {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.card__due-date--overdue {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
 .card__actions {
   display: flex;
   gap: 0.5rem;
