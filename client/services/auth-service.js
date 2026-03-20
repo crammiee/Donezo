@@ -1,6 +1,7 @@
 import { API_BASE } from '../config.js';
 
 const AUTH_KEY = 'donezo_token';
+const EMAIL_KEY = 'donezo_email';
 export const AUTH_PAGE = '/pages/auth/auth.html';
 
 export async function login(email, password) {
@@ -15,6 +16,7 @@ export async function login(email, password) {
   }
   const { token } = await res.json();
   localStorage.setItem(AUTH_KEY, token);
+  localStorage.setItem(EMAIL_KEY, email);
 }
 
 export async function register(email, password) {
@@ -31,7 +33,12 @@ export async function register(email, password) {
 
 export function logout() {
   localStorage.removeItem(AUTH_KEY);
+  localStorage.removeItem(EMAIL_KEY);
   window.location.href = AUTH_PAGE;
+}
+
+export function getUserEmail() {
+  return localStorage.getItem(EMAIL_KEY);
 }
 
 export function getToken() {

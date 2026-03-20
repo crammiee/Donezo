@@ -5,6 +5,7 @@ import { HelpModal } from '../../components/modal/help-modal/help-modal.js';
 import { WelcomeModal } from '../../components/modal/welcome-modal/welcome-modal.js';
 import { SeedService } from '../../services/seed-service.js';
 import { isAuthenticated, AUTH_PAGE, getToken } from '../../services/auth-service.js';
+import { UserMenu } from '../../components/user-menu/user-menu.js';
 import { connectSocket } from '../../services/socket-service.js';
 import { syncTasks } from '../../services/task-api-service.js';
 import { API_BASE } from '../../config.js';
@@ -19,6 +20,7 @@ export class BoardEvents {
     this.welcomeModal = new WelcomeModal();
     this.seedService = new SeedService();
     this.cardActions = new CardActions(boardDOM, storage, this.modal, this.deleteModal);
+    this.userMenu = new UserMenu();
     this.isUsingKeyboard = false;
     this.draggedCard = null;
     this.dropTarget = null;
@@ -32,6 +34,7 @@ export class BoardEvents {
 
     if (!isAuthenticated()) { window.location.href = AUTH_PAGE; return; }
 
+    await this.userMenu.init();
     connectSocket((tasks) => this.handleRemoteTaskUpdate(tasks));
 
     await this.modal.init();
