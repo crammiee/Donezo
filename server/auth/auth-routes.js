@@ -22,9 +22,7 @@ router.post('/register', authLimiter, async (req, res) => {
 router.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ 
-      error: 'Email and password are required'
-    });
+    return res.status(400).json({ error: 'Email and password are required' });
   }
   try {
     const token = await loginUser(email, password);
