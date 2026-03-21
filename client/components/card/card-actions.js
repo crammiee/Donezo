@@ -40,7 +40,7 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateContent(data.title, data.description, data.due_date, data.tags);
     card.updateStatus(data.status);
-    this.storage.update(card.toData());
+    this.storage.update({ ...card.toData(), synced: false });
     syncTasks([card.toData()]);
     if (data.status !== oldStatus) await this.moveCardToColumn(card, oldStatus);
     this.onChange?.();
@@ -54,7 +54,7 @@ export class CardActions {
   confirmDelete(card) {
     const oldStatus = card.status;
     this.storage.delete(card.id);
-    syncTasks([{ id: card.id, is_deleted: true }]);
+    syncTasks([{ id: card.id, is_deleted: true, synced: false }]);
     card.remove();
     this.cards = this.cards.filter((c) => c.id !== card.id);
     this.boardDOM.updateColumnCount(oldStatus);
@@ -90,7 +90,7 @@ export class CardActions {
   }
 
   createCard(data) {
-    const task = { id: this.generateId(), ...data };
+    const task = { id: this.generateId(), ...data, synced: false };
     this.storage.add(task);
     syncTasks([task]);
     const card = new Card(task);

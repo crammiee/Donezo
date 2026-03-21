@@ -8,6 +8,7 @@ import { isAuthenticated, AUTH_PAGE, getToken } from '../../services/auth-servic
 import { UserMenu } from '../../components/user-menu/user-menu.js';
 import { connectSocket } from '../../services/socket-service.js';
 import { syncTasks } from '../../services/task-api-service.js';
+import { handleOnline } from '../../services/sync-service.js'; 
 import { API_BASE } from '../../config.js';
 import { getTagColor } from '../../utils/tag-colors.js';
 
@@ -61,6 +62,7 @@ export class BoardEvents {
       this.welcomeModal.onDismiss = () => {};
       await this.welcomeModal.open();
     }
+    window.addEventListener('online', () => handleOnline(this.storage));
   }
 
   async fetchAndSyncTasks() {
