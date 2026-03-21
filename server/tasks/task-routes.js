@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { requireAuth } from '../middleware/auth-middleware.js';
 import { getTasksByUser, processBatch } from './task-service.js';
 import { broadcastTaskEvent } from '../socket-service.js';
+import { taskLimiter } from '../middleware/rate-limiter.js';
 
 const router = Router();
 
 // GET /tasks
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', requireAuth, taskLimiter, async (req, res) => {
   try {
     const tasks = await getTasksByUser(req.userId);
     res.status(200).json({ tasks });
@@ -17,7 +18,7 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // POST /tasks  (create, update, soft-delete)
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, taskLimiter, async (req, res) => {
   if (!Array.isArray(req.body.tasks))
     return res.status(400).json({ error: 'tasks must be an array' });
 
