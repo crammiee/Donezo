@@ -53,8 +53,8 @@ export class CardActions {
 
   confirmDelete(card) {
     const oldStatus = card.status;
-    this.storage.delete(card.id);
-    syncTasks([{ id: card.id, is_deleted: true, synced: false }]);
+    this.storage.softDelete(card.id);
+    syncTasks([{ id: card.id, is_deleted: true }]);
     card.remove();
     this.cards = this.cards.filter((c) => c.id !== card.id);
     this.boardDOM.updateColumnCount(oldStatus);
@@ -67,7 +67,7 @@ export class CardActions {
 
     const oldStatus = card.status;
     card.updateStatus(newStatus);
-    this.storage.update(card.toData());
+    this.storage.update({ ...card.toData(), synced: false });
     syncTasks([card.toData()]);
     await this.moveCardToColumn(card, oldStatus);
     card.$element.focus();
@@ -78,7 +78,7 @@ export class CardActions {
 
     const oldStatus = card.status;
     card.updateStatus(newStatus);
-    this.storage.update(card.toData());
+    this.storage.update({ ...card.toData(), synced: false });
     syncTasks([card.toData()]);
     await this.moveCardToColumn(card, oldStatus, referenceCard);
   }

@@ -3,6 +3,12 @@ const STORAGE_KEY = 'donezo_tasks';
 export class StorageService {
   load() {
     const raw = localStorage.getItem(STORAGE_KEY);
+    const tasks = raw ? JSON.parse(raw) : [];
+    return tasks.filter((t) => !t.is_deleted);
+  }
+
+  loadAll() {
+    const raw = localStorage.getItem(STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   }
 
@@ -21,8 +27,18 @@ export class StorageService {
   }
 
   delete(taskId) {
-    const tasks = this.load();
+    const tasks = this.loadAll();
     this.save(tasks.filter((t) => t.id !== taskId));
+  }
+
+  softDelete(taskId) {
+    const tasks = this.loadAll();
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      task.is_deleted = true;
+      task.synced = false;
+    }
+    this.save(tasks);
   }
 
   save(tasks) {
