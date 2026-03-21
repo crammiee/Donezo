@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth-middleware.js';
 import { getTasksByUser, processBatch } from './task-service.js';
-import { broadcastTaskEvent } from '../socket-service.js';
+import { broadcastTaskEvent } from '../services/socket-service.js';
 import { taskLimiter } from '../middleware/rate-limiter.js';
 
 const router = Router();

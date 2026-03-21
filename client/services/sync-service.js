@@ -3,70 +3,78 @@
 import { getToken } from './auth-service.js';
 import { API_BASE } from '../config.js';
 
-export async function syncPendingTasks(storage) {
-  const allTasks = storage.loadAll();
-  const pendingTasks = allTasks.filter((t) => !t.synced);
+export class SyncService {
+  handleOnline(storage) {
+    this.syncPendingTasks(storage);
+  }
 
-  if (pendingTasks.length === 0) return;
+  async syncPendingTasks(storage) {
+    const allTasks = storage.loadAll();
+    const pendingTasks = allTasks.filter((t) => !t.synced);
+    if (pendingTasks.length === 0) return;
 
-  try {
-    // Fetch current server state to compare timestamps
-    const getRes = await fetch(`${API_BASE}/tasks`, {
+    try {
+      const serverTasks = await this.fetchServerTasks();
+      if (!serverTasks) return;
+
+      const tasksToSync = this.filterNewerTasks(pendingTasks, serverTasks);
+      if (tasksToSync.length === 0) { storage.save(this.markAllSynced(allTasks, pendingTasks)); return; }
+
+      const saved = await this.pushTasks(tasksToSync);
+      if (!saved) return;
+      const savedIds = new Set(saved.map((t) => t.id));
+      storage.save(this.reconcileTasks(allTasks, pendingTasks, tasksToSync, savedIds));
+    } catch (err) {
+      console.error('syncPendingTasks error:', err);
+    }
+  }
+
+  async fetchServerTasks() {
+    const res = await fetch(`${API_BASE}/tasks`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
+    if (!res.ok) return null;
+    const { tasks } = await res.json();
+    return tasks;
+  }
 
-    if (!getRes.ok) return;
-
-    const { tasks: serverTasks } = await getRes.json();
+  filterNewerTasks(pendingTasks, serverTasks) {
     const serverMap = new Map(serverTasks.map((t) => [t.id, t]));
-
-    // Only push tasks where local updated_at is newer than server's
-    const tasksToSync = pendingTasks.filter((local) => {
+    return pendingTasks.filter((local) => {
       const server = serverMap.get(local.id);
-      if (!server) return true;
-      if (!local.updated_at) return true;
+      if (!server || !local.updated_at) return true;
       return new Date(local.updated_at) > new Date(server.updated_at);
     });
+  }
 
-    if (tasksToSync.length === 0) {
-      // Server is newer for everything — just mark all as synced
-      const updatedTasks = allTasks.map((t) =>
-        pendingTasks.find((p) => p.id === t.id) ? { ...t, synced: true } : t
-      );
-      storage.save(updatedTasks);
-      return;
-    }
-
-    const postRes = await fetch(`${API_BASE}/tasks`, {
+  async pushTasks(tasks) {
+    const res = await fetch(`${API_BASE}/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify({ tasks: tasksToSync }),
+      body: JSON.stringify({ tasks }),
     });
+    if (!res.ok) return null;
+    const { tasks: saved } = await res.json();
+    return saved;
+  }
 
-    if (!postRes.ok) return;
+  markAllSynced(allTasks, pendingTasks) {
+    return allTasks.map((t) =>
+      pendingTasks.find((p) => p.id === t.id) ? { ...t, synced: true } : t
+    );
+  }
 
-    const { tasks: savedTasks } = await postRes.json();
-    const savedIds = new Set(savedTasks.map((t) => t.id));
-
-    const updatedTasks = allTasks
+  reconcileTasks(allTasks, pendingTasks, tasksToSync, savedIds) {
+    return allTasks
       .map((t) => {
-        const wasPending = pendingTasks.find((p) => p.id === t.id);
-        if (!wasPending) return t;
+        if (!pendingTasks.find((p) => p.id === t.id)) return t;
         const accepted = savedIds.has(t.id);
-        const serverWasNewer = !tasksToSync.find((s) => s.id === t.id);
-        return accepted || serverWasNewer ? { ...t, synced: true } : t;
+        const serverNewer = !tasksToSync.find((s) => s.id === t.id);
+        return accepted || serverNewer ? { ...t, synced: true } : t;
       })
       .filter((t) => !(t.is_deleted && t.synced));
-
-    storage.save(updatedTasks);
-  } catch (err) {
-    console.error('syncPendingTasks error:', err);
   }
-}
-
-export function handleOnline(storage) {
-  syncPendingTasks(storage);
 }
