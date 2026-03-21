@@ -14,7 +14,7 @@ export class StorageService {
 
   add(task) {
     const tasks = this.load();
-    tasks.push(task);
+    tasks.push({ ...task, updated_at: new Date().toISOString() });
     this.save(tasks);
   }
 
@@ -22,7 +22,7 @@ export class StorageService {
     const tasks = this.load();
     const index = tasks.findIndex((t) => t.id === updatedTask.id);
     if (index === -1) throw new Error(`Task not found: ${updatedTask.id}`);
-    tasks[index] = updatedTask;
+    tasks[index] = { ...updatedTask, updated_at: new Date().toISOString() };
     this.save(tasks);
   }
 
@@ -37,6 +37,7 @@ export class StorageService {
     if (task) {
       task.is_deleted = true;
       task.synced = false;
+      task.updated_at = new Date().toISOString();
     }
     this.save(tasks);
   }
