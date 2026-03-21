@@ -1,33 +1,27 @@
 import { API_BASE } from '../config.js';
 import { getToken } from './auth-service.js';
 
-let socket = null;
+class SocketService {
+  constructor() {
+    this.socket = null;
+  }
 
-export function getSocketId() {
-  return socket ? socket.id : null;
-}
+  getSocketId() {
+    return this.socket ? this.socket.id : null;
+  }
 
-export function connectSocket(onTasksUpdated) {
-  if (socket) return;
+  connect(onTasksUpdated) {
+    if (this.socket) return;
+    this.socket = io(API_BASE);
+    this.socket.on('connect', () => this.socket.emit('join', getToken()));
+    this.socket.on('tasks:updated', (tasks) => onTasksUpdated(tasks));
+  }
 
-  socket = io(API_BASE);
-
-  socket.on('connect', () => {
-    socket.emit('join', getToken());
-  });
-
-  socket.on('tasks:updated', (tasks) => {
-    onTasksUpdated(tasks);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Socket disconnected, will auto-reconnect');
-  });
-}
-
-export function disconnectSocket() {
-  if (socket) {
-    socket.disconnect();
-    socket = null;
+  disconnect() {
+    if (!this.socket) return;
+    this.socket.disconnect();
+    this.socket = null;
   }
 }
+
+export const socketService = new SocketService();

@@ -1,4 +1,4 @@
-import { syncTasks } from './task-api-service.js';
+import { taskApiService } from './task-api-service.js';
 
 const SEED_TASKS = [
   { title: 'Add your first real task',    description: 'Click "+ new task" below, or press Enter on the board.', status: 'todo'  },
@@ -11,7 +11,7 @@ export class SeedService {
   seed(storage) {
     const tasks = SEED_TASKS.map((t) => ({ id: crypto.randomUUID(), ...t }));
     tasks.forEach((task) => storage.add(task));
-    syncTasks(tasks);
+    taskApiService.syncTasks(tasks);
     return tasks;
   }
 }

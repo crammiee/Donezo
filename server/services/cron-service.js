@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { query } from './db/db.js';
+import { query } from '../db/db.js';
 
 export function startCronJobs() {
   cron.schedule('0 0 * * *', cleanDeletedTasks);
