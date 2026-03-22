@@ -12,7 +12,9 @@ import { UserMenu } from '../../components/user-menu/user-menu.js';
 import { SeedService } from '../../services/seed-service.js';
 import { isAuthenticated, AUTH_PAGE, getToken } from '../../services/auth-service.js';
 import { socketService } from '../../services/socket-service.js';
-import { SyncService } from '../../services/sync-service.js';
+import { taskApiService } from '../../services/task-api-service.js';
+import { SyncQueue } from '../../services/sync-queue.js';
+import { RetryHandler } from '../../services/retry-handler.js';
 import { API_BASE } from '../../config.js';
 
 if (!isAuthenticated()) {
@@ -26,23 +28,24 @@ async function initBoard() {
   const boardDOM = new BoardDOM();
   const modal = new TaskModal();
   const deleteModal = new DeleteModal();
-  const cardActions = new CardActions(boardDOM, storage, modal, deleteModal);
-  const dragDrop = new DragDropManager(boardDOM, cardActions, storage);
+  const retryHandler = new RetryHandler();
+  const syncQueue = new SyncQueue(taskApiService, retryHandler);
+  const cardActions = new CardActions(boardDOM, storage, modal, deleteModal, syncQueue);
+  const dragDrop = new DragDropManager(boardDOM, cardActions, storage, syncQueue);
   const tagFilter = new TagFilter(cardActions);
   const events = new BoardEvents(cardActions, boardDOM, modal, dragDrop, tagFilter);
 
-  await initServices(modal, deleteModal, events, storage);
+  await initServices(modal, deleteModal, events, syncQueue);
   await loadBoard(cardActions, boardDOM, tagFilter, dragDrop, events, storage);
 }
 
-async function initServices(modal, deleteModal, events, storage) {
+async function initServices(modal, deleteModal, events, syncQueue) {
   const userMenu = new UserMenu();
   await userMenu.init();
   socketService.connect((tasks) => events.handleRemoteTaskUpdate(tasks));
   await modal.init();
   await deleteModal.init();
-  const syncService = new SyncService();
-  window.addEventListener('online', () => syncService.handleOnline(storage));
+  window.addEventListener('online', () => syncQueue.resume());
   document.getElementById('HELP_BTN').addEventListener('click', () => new HelpModal().open());
 }
 
@@ -67,7 +70,7 @@ async function loadBoard(cardActions, boardDOM, tagFilter, dragDrop, events, sto
 async function fetchAndSyncTasks(storage) {
   try {
     const res = await fetch(`${API_BASE}/tasks`, {
-      headers: { 'Authorization': `Bearer ${getToken()}` },
+      headers: { Authorization: `Bearer ${getToken()}` },
     });
     if (!res.ok) return false;
     const { tasks } = await res.json();

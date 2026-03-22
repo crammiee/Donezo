@@ -10,9 +10,9 @@ export const authLimiter = rateLimit({
 
 export const taskLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 30,
+  max: 60,
   keyGenerator: (req) => req.userId || req.ip,
   message: { error: 'Too many requests. Please slow down.' },
-  standardHeaders: true,
+  standardHeaders: 'draft-7',
   legacyHeaders: false,
 });

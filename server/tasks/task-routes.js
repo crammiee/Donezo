@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth-middleware.js';
-import { getTasksByUser, processBatch } from './task-service.js';
+import { getTasksByUser, getTasksSince, processBatch } from './task-service.js';
 import { broadcastTaskEvent } from '../services/socket-service.js';
 import { taskLimiter } from '../middleware/rate-limiter.js';
 
@@ -9,7 +9,9 @@ const router = Router();
 // GET /tasks
 router.get('/', requireAuth, taskLimiter, async (req, res) => {
   try {
-    const tasks = await getTasksByUser(req.userId);
+    const tasks = req.query.since
+      ? await getTasksSince(req.userId, req.query.since)
+      : await getTasksByUser(req.userId);
     res.status(200).json({ tasks });
   } catch (err) {
     console.error(err);

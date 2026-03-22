@@ -1,10 +1,9 @@
-import { taskApiService } from '../../services/task-api-service.js';
-
 export class DragDropManager {
-  constructor(boardDOM, cardActions, storage) {
+  constructor(boardDOM, cardActions, storage, syncQueue) {
     this.boardDOM = boardDOM;
     this.cardActions = cardActions;
     this.storage = storage;
+    this.syncQueue = syncQueue;
     this.draggedCard = null;
     this.dropTarget = null;
   }
@@ -104,7 +103,7 @@ export class DragDropManager {
       if (card) t.position = card.position;
     }
     this.storage.save(allTasks);
-    taskApiService.syncTasks(updatedTasks);
+    this.syncQueue.enqueue(updatedTasks);
   }
 
   attachListeners() {
