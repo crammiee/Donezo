@@ -36,6 +36,14 @@ export async function softDeleteTask(taskId, userId) {
     return result.rows[0];
 }
 
+export async function getTasksSince(userId, since) {
+    const result = await query(
+        'SELECT * FROM tasks WHERE user_id = $1 AND updated_at > $2',
+        [userId, since]
+    );
+    return result.rows;
+}
+
 export async function processBatch(tasks, userId) {
     const results = [];
     for (const task of tasks) {

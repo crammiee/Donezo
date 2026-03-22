@@ -1,14 +1,14 @@
 import { Card } from './card.js';
-import { taskApiService } from '../../services/task-api-service.js';
 
 const COLUMN_ORDER = ['todo', 'doing', 'done'];
 
 export class CardActions {
-  constructor(boardDOM, storage, modal, deleteModal) {
+  constructor(boardDOM, storage, modal, deleteModal, syncQueue) {
     this.boardDOM = boardDOM;
     this.storage = storage;
     this.modal = modal;
     this.deleteModal = deleteModal;
+    this.syncQueue = syncQueue;
     this.cards = [];
     this.onDragStart = null;
     this.onDragEnd = null;
@@ -41,7 +41,7 @@ export class CardActions {
     card.updateContent(data.title, data.description, data.due_date, data.tags);
     card.updateStatus(data.status);
     this.storage.update({ ...card.toData(), synced: false });
-    taskApiService.syncTasks([card.toData()]);
+    this.syncQueue.enqueue([card.toData()]);
     if (data.status !== oldStatus) await this.moveCardToColumn(card, oldStatus);
     this.onChange?.();
   }
@@ -54,7 +54,7 @@ export class CardActions {
   confirmDelete(card) {
     const oldStatus = card.status;
     this.storage.softDelete(card.id);
-    taskApiService.syncTasks([{ id: card.id, is_deleted: true }]);
+    this.syncQueue.enqueue([{ id: card.id, is_deleted: true }]);
     card.remove();
     this.cards = this.cards.filter((c) => c.id !== card.id);
     this.boardDOM.updateColumnCount(oldStatus);
@@ -68,7 +68,7 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update({ ...card.toData(), synced: false });
-    taskApiService.syncTasks([card.toData()]);
+    this.syncQueue.enqueue([card.toData()]);
     await this.moveCardToColumn(card, oldStatus);
     card.$element.focus();
   }
@@ -79,7 +79,7 @@ export class CardActions {
     const oldStatus = card.status;
     card.updateStatus(newStatus);
     this.storage.update({ ...card.toData(), synced: false });
-    taskApiService.syncTasks([card.toData()]);
+    this.syncQueue.enqueue([card.toData()]);
     await this.moveCardToColumn(card, oldStatus, referenceCard);
   }
 
@@ -92,7 +92,7 @@ export class CardActions {
   createCard(data) {
     const task = { id: this.generateId(), ...data, synced: false };
     this.storage.add(task);
-    taskApiService.syncTasks([task]);
+    this.syncQueue.enqueue([task]);
     const card = new Card(task);
     this.assign(card);
     this.cards.push(card);
