@@ -22,12 +22,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3001/auth/register",
-          "protocol": "http",
+          "raw": "{{base_url}}/auth/register",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "3001",
           "path": [
             "auth",
             "register"
@@ -51,12 +49,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3001/auth/login",
-          "protocol": "http",
+          "raw": "{{base_url}}/auth/login",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "3001",
           "path": [
             "auth",
             "login"
@@ -72,17 +68,15 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTFjMTA3Zi00ZGNiLTQ3NGItYWYyNy1hNjgyNGFhNmZiOWUiLCJpYXQiOjE3NzQxNzc4MjAsImV4cCI6MTc3NDc4MjYyMH0.XT87X4RemB7XnVqLIylwS7w8yFzSBbIB895tb_gqU6A",
+            "value": "Bearer {{jwt_token}}",
             "type": "text"
           }
         ],
         "url": {
-          "raw": "http://localhost:3001/tasks",
-          "protocol": "http",
+          "raw": "{{base_url}}/tasks",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "3001",
           "path": [
             "tasks"
           ]
@@ -97,7 +91,7 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MTFjMTA3Zi00ZGNiLTQ3NGItYWYyNy1hNjgyNGFhNmZiOWUiLCJpYXQiOjE3NzQxNzc4MjAsImV4cCI6MTc3NDc4MjYyMH0.XT87X4RemB7XnVqLIylwS7w8yFzSBbIB895tb_gqU6A",
+            "value": "Bearer {{jwt_token}}",
             "type": "text"
           }
         ],
@@ -111,12 +105,10 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3001/tasks",
-          "protocol": "http",
+          "raw": "{{base_url}}/tasks",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "3001",
           "path": [
             "tasks"
           ]
