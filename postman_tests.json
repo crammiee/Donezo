@@ -1,0 +1,879 @@
+{
+  "info": {
+    "_postman_id": "aebec4ae-b3ac-44ed-93a4-eafcb2c2a685",
+    "name": "Donezo API",
+    "description": "Offline-first Kanban board API. Supports user authentication via JWT, task CRUD, operations, real-time sync via Websockets, and rate limiting.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53267893",
+    "_collection_link": "https://go.postman.co/collection/53267893-aebec4ae-b3ac-44ed-93a4-eafcb2c2a685?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Setup",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", () => pm.response.to.have.status(201));\r",
+                  "pm.test(\"Response has user object\", () => pm.expect(pm.response.json()).to.have.property('user'));\r",
+                  "pm.test(\"User has id\", () => pm.expect(pm.response.json().user).to.have.property('id'));\r",
+                  "pm.test(\"User has email\", () => pm.expect(pm.response.json().user).to.have.property('email'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Creates a new user account. Takes email and apssword, returns user object with id and email on success (201)."
+          },
+          "response": [
+            {
+              "name": "Register Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "5;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "5"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "3"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "476"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "79"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"4f-BWfdSgZnYqtZuJ/N9R90hw1c3xA\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 13:54:49 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"user\": {\n        \"id\": \"1767d808-176e-49b0-a639-3ca60c46a3b4\",\n        \"email\": \"test3@test.com\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));\r",
+                  "pm.test(\"Response has token\", () => pm.expect(pm.response.json()).to.have.property('token'));\r",
+                  "pm.test(\"Token is a string\", () => pm.expect(pm.response.json().token).to.be.a('string'));\r",
+                  "pm.environment.set(\"jwt_token\", pm.response.json().token);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates user with email and password. Returns JWT token (valid for 7 days) used in Authorization header for protected endpoints (200)."
+          },
+          "response": [
+            {
+              "name": "Login Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "5;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "5"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "4"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "900"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "204"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"cc-eZoexZ427pgnnI2a94Xt5WxIusM\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 14:14:33 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzY3ZDgwOC0xNzZlLTQ5YjAtYTYzOS0zY2E2MGM0NmEzYjQiLCJpYXQiOjE3NzQzNjE2NzMsImV4cCI6MTc3NDk2NjQ3M30.C-M6Hw4AED1thLY1jskOVvPkPy69uxEPyL2fKTCiKpY\"\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Initial setup requests: register a new user and authenticate to get JWT token for subsequent requests"
+    },
+    {
+      "name": "Happy Path",
+      "item": [
+        {
+          "name": "Get Tasks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));\r",
+                  "pm.test(\"Response has tasks array\", () => pm.expect(pm.response.json()).to.have.property('tasks'));\r",
+                  "pm.test(\"Tasks is an array\", () => pm.expect(pm.response.json().tasks).to.be.an('array'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Retrieves all tasks for the authenticated user. Requires valid JWT token in Authorization header. Retturns array of tasks (200)."
+          },
+          "response": [
+            {
+              "name": "Get Tasks",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwt_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/tasks",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tasks"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "60;w=60"
+                },
+                {
+                  "key": "RateLimit",
+                  "value": "limit=60, remaining=59, reset=60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "12"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"c-vYhJ+637j7hGzLiQJl8ECNUD9Wk\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 14:17:21 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"tasks\": []\n}"
+            }
+          ]
+        },
+        {
+          "name": "Batch Tasks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));\r",
+                  "pm.test(\"Response has tasks\", () => pm.expect(pm.response.json()).to.have.property('tasks'));\r",
+                  "pm.test(\"Tasks is an array\", () => pm.expect(pm.response.json().tasks).to.be.an('array'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"tasks\": [\r\n    {\r\n      \"id\": \"11111111-1111-1111-1111-111111111111\",\r\n      \"title\": \"My First Task\",\r\n      \"description\": \"Testing the API\",\r\n      \"status\": \"todo\",\r\n      \"is_deleted\": false,\r\n      \"updated_at\": \"2026-03-24T00:00:00.000Z\"\r\n    }\r\n  ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Creates or updates multiple tasks in a single request. Accepts array of task objects. Requires valid JWT token. Returns updated tassks (200)."
+          },
+          "response": [
+            {
+              "name": "Batch Task Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwt_token}}",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"tasks\": [\r\n    {\r\n      \"id\": \"11111111-1111-1111-1111-111111111111\",\r\n      \"title\": \"My First Task\",\r\n      \"description\": \"Testing the API\",\r\n      \"status\": \"todo\",\r\n      \"is_deleted\": false,\r\n      \"updated_at\": \"2026-03-24T00:00:00.000Z\"\r\n    }\r\n  ]\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/tasks",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tasks"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "60;w=60"
+                },
+                {
+                  "key": "RateLimit",
+                  "value": "limit=60, remaining=59, reset=60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "315"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"13b-lWxXtaktA4mKvFHjfuc2YhO+Vtg\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 14:24:08 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"tasks\": [\n        {\n            \"id\": \"11111111-1111-1111-1111-111111111111\",\n            \"user_id\": \"611c107f-4dcb-474b-af27-a6824aa6fb9e\",\n            \"title\": \"My First Task\",\n            \"description\": \"Testing the API\",\n            \"status\": \"todo\",\n            \"deleted_at\": null,\n            \"created_at\": \"2026-03-22T11:20:54.604Z\",\n            \"updated_at\": \"2026-03-24T00:00:00.000Z\",\n            \"position\": 0,\n            \"due_date\": null,\n            \"tags\": []\n        }\n    ]\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Core functionality tests: retrieve and manipulate tasks with valid authentication. All requests should succeed (200)."
+    },
+    {
+      "name": "Error Cases",
+      "item": [
+        {
+          "name": "Register with missing email (should 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 400\", () => pm.response.to.have.status(400));\r",
+                  "pm.test(\"Response has error\", () => pm.expect(pm.response.json()).to.have.property('error'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"password\": \"password123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Error case: Register without email field. Should return 400 Bad Request with error message."
+          },
+          "response": [
+            {
+              "name": "Register Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/register",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "register"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "5;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "5"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "3"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "476"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "79"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"4f-BWfdSgZnYqtZuJ/N9R90hw1c3xA\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 13:54:49 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"user\": {\n        \"id\": \"1767d808-176e-49b0-a639-3ca60c46a3b4\",\n        \"email\": \"test3@test.com\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login with wrong password (should 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));\r",
+                  "pm.test(\"Response has error\", () => pm.expect(pm.response.json()).to.have.property('error'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"wrongpassword123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Error case: Login with incorrect password. Should return 401 Unauthorized with error message."
+          },
+          "response": [
+            {
+              "name": "Login Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n  \"email\": \"test3@test.com\",\r\n  \"password\": \"password123\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/auth/login",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "5;w=900"
+                },
+                {
+                  "key": "RateLimit-Limit",
+                  "value": "5"
+                },
+                {
+                  "key": "RateLimit-Remaining",
+                  "value": "4"
+                },
+                {
+                  "key": "RateLimit-Reset",
+                  "value": "900"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "204"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"cc-eZoexZ427pgnnI2a94Xt5WxIusM\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 14:14:33 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxNzY3ZDgwOC0xNzZlLTQ5YjAtYTYzOS0zY2E2MGM0NmEzYjQiLCJpYXQiOjE3NzQzNjE2NzMsImV4cCI6MTc3NDk2NjQ3M30.C-M6Hw4AED1thLY1jskOVvPkPy69uxEPyL2fKTCiKpY\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Tasks - No Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 401\", () => pm.response.to.have.status(401));\r",
+                  "pm.test(\"Response has error\", () => pm.expect(pm.response.json()).to.have.property('error'));\r",
+                  "pm.test(\"Error message about missing auth\", () => {\r",
+                  "  const error = pm.response.json().error;\r",
+                  "  pm.expect(error).to.include.oneOf(['Missing', 'Invalid', 'authorization']);\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/tasks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "tasks"
+              ]
+            },
+            "description": "Error case: Access tasks without Auhtorization header. Should return 401 Unauthorized with error message."
+          },
+          "response": [
+            {
+              "name": "Get Tasks",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{jwt_token}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/tasks",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "tasks"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "X-Powered-By",
+                  "value": "Express"
+                },
+                {
+                  "key": "Access-Control-Allow-Origin",
+                  "value": "*"
+                },
+                {
+                  "key": "RateLimit-Policy",
+                  "value": "60;w=60"
+                },
+                {
+                  "key": "RateLimit",
+                  "value": "limit=60, remaining=59, reset=60"
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                },
+                {
+                  "key": "Content-Length",
+                  "value": "12"
+                },
+                {
+                  "key": "ETag",
+                  "value": "W/\"c-vYhJ+637j7hGzLiQJl8ECNUD9Wk\""
+                },
+                {
+                  "key": "Date",
+                  "value": "Tue, 24 Mar 2026 14:17:21 GMT"
+                },
+                {
+                  "key": "Connection",
+                  "value": "keep-alive"
+                },
+                {
+                  "key": "Keep-Alive",
+                  "value": "timeout=5"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n    \"tasks\": []\n}"
+            }
+          ]
+        }
+      ],
+      "description": "Negative test cases: invalid inputs, missing auth, wrong credentials. Tests error handling and HTTP status codes."
+    }
+  ]
+}

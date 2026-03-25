@@ -1,10 +1,11 @@
 {
   "info": {
-    "_postman_id": "ab4f68c2-b3ae-4f51-87f1-c781da0b8f09",
-    "name": "Donezo API",
+    "_postman_id": "34493f48-3fc8-4ace-b19c-0cb8c8d773b0",
+    "name": "Donezo API Documentation",
+    "description": "Complete reference for Donezo an offline-ffirst Kanban board API.\n\nThis API enables users to manage personal kanban boards with real-time synchronization across devices. Features include JWT-based authentication, task CRUD operations with soft-delete support, WebSocket real-time updates, and rate limiting to prevent abuse.\n\n**Base URL:** [http://localhost:3002](http://localhost:3002) (or ngrok URL for remote testing)\n\n**Authentication:** All task endpoints require JWT token in Authorization header: Bearer {token}\n\n**Rate Limits:**\n\n- Auth endpoints: 5 requests per 15 minutes\n    \n- Task endpoints: 60 requests per minute per user\n    \n\n**Response Format:** All endpoints return JSON. Errors include an 'error' property with description.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "53344699",
-    "_collection_link": "https://go.postman.co/collection/53344699-ab4f68c2-b3ae-4f51-87f1-c781da0b8f09?source=collection_link"
+    "_exporter_id": "53267893",
+    "_collection_link": "https://go.postman.co/collection/53267893-34493f48-3fc8-4ace-b19c-0cb8c8d773b0?source=collection_link"
   },
   "item": [
     {
@@ -30,7 +31,8 @@
             "auth",
             "register"
           ]
-        }
+        },
+        "description": "Creates a new user with email and password. Password is hashed using bcrypt before storage.\n\n**Request:** email, password  \n**Response (201):** user object with id and email  \n**Errors:** 400 (missing fields), 409 (email exists), 429 (rate limited)\n\n**Notes:**\n\n- Email must be unique\n    \n- Password must be at least 8 characters\n    \n- Passwords are not returned in responses"
       },
       "response": [
         {
@@ -60,7 +62,7 @@
           },
           "status": "Created",
           "code": 201,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "Text",
           "header": [
             {
               "key": "X-Powered-By",
@@ -139,7 +141,8 @@
             "auth",
             "login"
           ]
-        }
+        },
+        "description": "Authenticates user and returns JWT token.\n\nVerifies email and password against stored credentials. Returns JWT token valid for 7 days. Use this token in Authorization header for all subsequent requests.\n\n**Request:** email, password  \n**Response (200):** JWT token valid for 7 days  \n**Errors:** 401 (invalid credentials), 429 (rate limited)\n\nTokens are signed with JWT_SECRET and cannot be forged"
       },
       "response": [
         {
@@ -169,7 +172,7 @@
           },
           "status": "OK",
           "code": 200,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "Text",
           "header": [
             {
               "key": "X-Powered-By",
@@ -244,7 +247,8 @@
           "path": [
             "tasks"
           ]
-        }
+        },
+        "description": "Retrieves all tasks for authenticated user.\n\nReturns array of all tasks (including soft-deleted) belonging to the authenticated user. Use this to sync local state with server.\n\n**Headers:** Authorization: Bearer {jwt_token}  \n**Response (200):** Array of task objects  \n**Errors:** 401 (missing/invalid token), 429 (rate limited)\n\n**Notes:**\n\n- Tasks with deleted_at != null are soft-deleted but included in response for sync purposes\n    \n- Use updated_at timestamp for last-write-wins conflict resolution\n    \n- Tags are returned as array of strings"
       },
       "response": [
         {
@@ -270,7 +274,7 @@
           },
           "status": "OK",
           "code": 200,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "Text",
           "header": [
             {
               "key": "X-Powered-By",
@@ -346,7 +350,8 @@
           "path": [
             "tasks"
           ]
-        }
+        },
+        "description": "Creates or updates multiple tasks in a single bath request.\n\nAccepts array of task objects and performs upsert (insert or update). Uses last-write-wins conflict resolution: server only accepts changes if incoming updated_at timestamp is newer than existing record. Soft-deletes are supported via is_deleted flag.\n\n**Headers:** Authorization: Bearer {jwt_token}  \n**Request Body:** { tasks: \\[...\\] } — Array of task objects  \n**Response (200):** Array of saved task objects  \n**Errors:** 400 (invalid data), 401 (missing/invalid token), 429 (rate limited)"
       },
       "response": [
         {
@@ -381,7 +386,7 @@
           },
           "status": "OK",
           "code": 200,
-          "_postman_previewlanguage": null,
+          "_postman_previewlanguage": "Text",
           "header": [
             {
               "key": "X-Powered-By",
