@@ -341,9 +341,9 @@ Automated test suite covering all endpoints with happy paths and error cases.
 
 All tests passing:
 
-![Setup folder tests](./docs/test-setup-passed.png)
-![Happy paths tests](./docs/test-happy-paths-passed.png)
-![Error cases tests](./docs/test-error-cases-passed.png)
+![Setup folder tests](./docs/Pictures/test-setup-passed.png)
+![Happy paths tests](./docs/Pictures/test-happy-paths-passed.png)
+![Error cases tests](./docs/Pictures/test-error-cases-passed.png)
 
 ---
 
