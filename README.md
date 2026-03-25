@@ -432,7 +432,6 @@ Create `.env` in `server/` directory:
 | `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:pass@localhost:5432/donezo` |
 | `JWT_SECRET` | Secret key for signing JWT tokens | (32+ character random string) |
 | `PORT` | Server port | `3002` |
-| `NODE_ENV` | Environment (development/production) | `development` |
 
 ---
 
@@ -478,10 +477,10 @@ Create `.env` file in `server/` with `JWT_SECRET=your_secret_key`
 ## Team
 
 - **Ron Marc Canete** — PM, code review, Websockets, full-stack development
-- **Dominique Alfred Himaya** — API documentation (Postman)
-- **Rex Russel Escarro** — Offline sync implementation
-- **Jonel Dinopol** — Rate limiting
-- **Andre Milan Aranas** — API automated testing
+- **Dominique Alfred Himaya** — Tasks API (backend), API documentation (Postman)
+- **Rex Russel Escarro** — Auth (frontend), Offline sync implementation
+- **Jonel Dinopol** — Auth API (backend), Rate limiting
+- **Andre Milan Aranas** — Cron jobs, API automated testing
 
 ---
 
