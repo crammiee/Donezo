@@ -88,7 +88,6 @@ Create `.env` file in `server/` directory:
 DATABASE_URL=postgresql://postgres:password@localhost:5432/donezo
 JWT_SECRET=your_very_long_random_secret_key_at_least_32_characters
 PORT=3002
-NODE_ENV=development
 ```
 
 **Generate a strong JWT_SECRET:**
@@ -153,9 +152,92 @@ Edit `client/config.js`:
 export const API_BASE = 'https://abc123.ngrok.io';
 ```
 
-### 4. Test from Another Device
+---
 
-Open `https://abc123.ngrok.io` on your phone, tablet, or another laptop.
+## 4. Testing Across Multiple Machines
+
+For testing offline sync and real-time updates across different computers:
+
+### Machine A (Backend Server)
+
+**1. Start the backend server**
+```bash
+cd server
+node server.js
+```
+
+Server runs on `http://localhost:3002`
+
+**2. Expose with ngrok**
+
+In a new terminal on Machine A:
+```bash
+ngrok http 3002
+```
+
+You'll see:
+```
+Forwarding    https://abc123.ngrok.io -> http://localhost:3002
+```
+
+Copy the ngrok URL — you'll need this on Machine B.
+
+**Keep this running** while testing.
+
+---
+
+### Machine B (Frontend Client)
+
+**1. Clone the repo** (if not already cloned)
+```bash
+git clone <repo-url>
+cd Donezo
+```
+
+**2. Update client config**
+
+Edit `client/config.js`:
+```js
+export const API_BASE = 'https://abc123.ngrok.io'; // Use the ngrok URL from Machine A
+```
+
+**3. Start the client**
+```bash
+cd client
+npx serve .
+```
+
+Client runs on `http://localhost:3000`
+
+**4. Open in browser**
+```
+http://localhost:3000
+```
+
+---
+
+### Test Offline Sync
+
+**On Machine B (Frontend):**
+
+1. Register and create a task
+2. Disconnect from internet (unplug ethernet, turn off WiFi)
+3. Create another task while offline — it saves to localStorage
+4. Reconnect to internet
+5. Watch the offline task sync to the server automatically
+
+**Verify on Machine A:**
+Check the backend logs or database — the new task should appear.
+
+---
+
+### Best Practice for Team Testing
+
+1. **One teammate** runs backend + ngrok on their machine
+2. **Other teammates** update their `client/config.js` with that ngrok URL
+3. **All run** `npx serve .` on their machines
+4. **All test** on `http://localhost:3000`
+5. Real-time sync and offline sync work across all machines
 
 ---
 
