@@ -11,6 +11,7 @@ export class SyncQueue {
     this.debounceTimer = null;
     this.paused = false;
     this.retrying = false;
+    this.onIdMappings = null;
   }
 
   enqueue(tasks) {
@@ -33,14 +34,23 @@ export class SyncQueue {
     this.queue.clear();
 
     try {
-      const { ok, status } = await this.taskApiService.syncTasks(batch);
-      if (ok) { this.markSynced(batchIds); return; }
+      const { ok, status, data } = await this.taskApiService.syncTasks(batch);
+      if (ok) {
+        this.processIdMappings(data?.idMappings);
+        this.markSynced(batchIds);
+        return;
+      }
       if (status === 429) { showToast('Too many requests. Please slow down.'); }
       this.startRetryLoop(0);
     } catch (err) {
       if (!(err instanceof TypeError)) console.error('sync error:', err);
       this.startRetryLoop(0);
     }
+  }
+
+  processIdMappings(idMappings) {
+    if (!idMappings?.length || !this.onIdMappings) return;
+    this.onIdMappings(idMappings);
   }
 
   async startRetryLoop(attempt) {
@@ -70,8 +80,12 @@ export class SyncQueue {
     if (pending.length === 0) return;
 
     try {
-      const { ok, status } = await this.taskApiService.syncTasks(pending);
-      if (ok) { this.markSynced(new Set(pending.map((t) => t.id))); return; }
+      const { ok, status, data } = await this.taskApiService.syncTasks(pending);
+      if (ok) {
+        this.processIdMappings(data?.idMappings);
+        this.markSynced(new Set(pending.map((t) => t.id)));
+        return;
+      }
       if (status === 429) showToast('Too many requests. Please slow down.');
       await this.retryAttempt(attempt + 1);
     } catch {

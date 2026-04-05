@@ -1,15 +1,9 @@
-import { Router } from 'express';
-import { registerUser, loginUser } from './auth-service.js';
-import { authLimiter } from '../middleware/rate-limiter.js';
+import { registerUser, loginUser } from './auth.service.js';
 
-const router = Router();
-
-router.post('/register', authLimiter, async (req, res) => {
+export async function register(req, res) {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(400).json({
-      error: 'Email and password are required'
-    });
+    return res.status(400).json({ error: 'Email and password are required' });
   }
   try {
     const user = await registerUser(email, password);
@@ -17,9 +11,9 @@ router.post('/register', authLimiter, async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+}
 
-router.post('/login', authLimiter, async (req, res) => {
+export async function login(req, res) {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
@@ -28,14 +22,10 @@ router.post('/login', authLimiter, async (req, res) => {
     const token = await loginUser(email, password);
     res.status(200).json({ token });
   } catch (err) {
-    res.status(401).json({
-      error: err.message
-    });
+    res.status(401).json({ error: err.message });
   }
-});
+}
 
-router.post('/logout', (req, res) => {
+export function logout(req, res) {
   res.status(200).json({ message: 'Logged out successfully' });
-});
-
-export default router;
+}

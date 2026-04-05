@@ -42,6 +42,13 @@ export class StorageService {
     this.save(tasks);
   }
 
+  replaceId(oldId, newId) {
+    const tasks = this.loadAll();
+    const task = tasks.find((t) => t.id === oldId);
+    if (task) task.id = newId;
+    this.save(tasks);
+  }
+
   save(tasks) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
   }

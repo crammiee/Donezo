@@ -1,9 +1,18 @@
-// Task CRUD — upsert and soft delete against PostgreSQL
-import { query } from '../db/db.js';
+import { query } from '../../db/db.js';
 
 export async function getTasksByUser(userId) {
     const result = await query('SELECT * FROM tasks WHERE user_id = $1 AND deleted_at IS NULL', [userId]);
-    return result.rows;    
+    return result.rows;
+}
+
+export async function insertNewTask(task, userId) {
+    const { title, description, status, position, due_date, tags, updated_at } = task;
+    const result = await query(`
+        INSERT INTO tasks (user_id, title, description, status, position, due_date, tags, updated_at)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *;`,
+        [userId, title, description, status, position ?? 0, due_date || null, tags || [], updated_at]);
+    return result.rows[0];
 }
 
 export async function upsertTask(task, userId) {
@@ -28,8 +37,8 @@ export async function upsertTask(task, userId) {
 
 export async function softDeleteTask(taskId, userId) {
     const result = await query(`
-        UPDATE tasks 
-        SET deleted_at = NOW(), updated_at = NOW() 
+        UPDATE tasks
+        SET deleted_at = NOW(), updated_at = NOW()
         WHERE id = $1 AND user_id = $2 AND deleted_at IS NULL
         RETURNING *;`,
         [taskId, userId]);
@@ -44,16 +53,31 @@ export async function getTasksSince(userId, since) {
     return result.rows;
 }
 
+function isTempId(id) {
+    return typeof id === 'string' && id.startsWith('temp_');
+}
+
 export async function processBatch(tasks, userId) {
     const results = [];
+    const idMappings = [];
+
     for (const task of tasks) {
         if (task.is_deleted) {
-            const deleted = await softDeleteTask(task.id, userId);
-            if (deleted) results.push(deleted);
+            if (!isTempId(task.id)) {
+                const deleted = await softDeleteTask(task.id, userId);
+                if (deleted) results.push(deleted);
+            }
+        } else if (isTempId(task.id)) {
+            const created = await insertNewTask(task, userId);
+            if (created) {
+                results.push(created);
+                idMappings.push({ tempId: task.id, realId: created.id });
+            }
         } else {
             const upserted = await upsertTask(task, userId);
             if (upserted) results.push(upserted);
         }
     }
-    return results;
+
+    return { tasks: results, idMappings };
 }

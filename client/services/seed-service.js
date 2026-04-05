@@ -9,7 +9,7 @@ const SEED_TASKS = [
 
 export class SeedService {
   seed(storage) {
-    const tasks = SEED_TASKS.map((t) => ({ id: crypto.randomUUID(), ...t }));
+    const tasks = SEED_TASKS.map((t) => ({ id: 'temp_' + crypto.randomUUID(), ...t }));
     tasks.forEach((task) => storage.add(task));
     taskApiService.syncTasks(tasks);
     return tasks;

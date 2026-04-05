@@ -128,6 +128,11 @@ export class Card {
     this.renderDueDate();
   }
 
+  updateId(newId) {
+    this.id = newId;
+    if (this.$element) this.$element.dataset.id = newId;
+  }
+
   updateStatus(newStatus) {
     this.status = newStatus;
   }

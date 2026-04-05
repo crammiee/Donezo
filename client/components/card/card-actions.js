@@ -135,6 +135,11 @@ export class CardActions {
   }
 
   generateId() {
-    return crypto.randomUUID();
+    return 'temp_' + crypto.randomUUID();
+  }
+
+  replaceTaskId(oldId, newId) {
+    const card = this.findCard(oldId);
+    if (card) card.updateId(newId);
   }
 }

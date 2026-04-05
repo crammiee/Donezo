@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { query } from '../db/db.js';
+import { query } from '../../db/db.js';
 
 const SALT_ROUNDS = 10;
 const TOKEN_EXPIRY = '7d';

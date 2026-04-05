@@ -31,6 +31,12 @@ async function initBoard() {
   const retryHandler = new RetryHandler();
   const syncQueue = new SyncQueue(taskApiService, retryHandler);
   const cardActions = new CardActions(boardDOM, storage, modal, deleteModal, syncQueue);
+  syncQueue.onIdMappings = (mappings) => {
+    for (const { tempId, realId } of mappings) {
+      storage.replaceId(tempId, realId);
+      cardActions.replaceTaskId(tempId, realId);
+    }
+  };
   const dragDrop = new DragDropManager(boardDOM, cardActions, storage, syncQueue);
   const tagFilter = new TagFilter(cardActions);
   const events = new BoardEvents(cardActions, boardDOM, modal, dragDrop, tagFilter);

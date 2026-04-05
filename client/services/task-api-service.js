@@ -10,7 +10,8 @@ class TaskApiService {
       headers: this.buildHeaders(),
       body: JSON.stringify({ tasks: payload }),
     });
-    return { ok: res.ok, status: res.status };
+    const data = res.ok ? await res.json() : null;
+    return { ok: res.ok, status: res.status, data };
   }
 
   buildHeaders() {
