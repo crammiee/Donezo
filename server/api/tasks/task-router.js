@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getTasks, syncTasks } from './task.controller.js';
+import { getTasks, syncTasks } from './task-controller.js';
 import { requireAuth } from '../../middleware/auth-middleware.js';
 import { taskLimiter } from '../../middleware/rate-limiter.js';
 

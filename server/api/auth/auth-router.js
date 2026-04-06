@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, logout } from './auth.controller.js';
+import { register, login, logout } from './auth-controller.js';
 import { authLimiter } from '../../middleware/rate-limiter.js';
 
 const router = Router();

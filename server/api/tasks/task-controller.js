@@ -1,4 +1,4 @@
-import { getTasksByUser, getTasksSince, processBatch } from './task.service.js';
+import { getTasksByUser, getTasksSince, processBatch } from './task-service.js';
 import { broadcastTaskEvent } from '../../services/socket-service.js';
 
 export async function getTasks(req, res) {
