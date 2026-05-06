@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 let io;
 
 export function initSocket(httpServer) {
-  io = new Server(httpServer, { cors: { origin: '*' } });
+  io = new Server(httpServer, { cors: { origin: process.env.ALLOWED_ORIGIN || '*' } });
 
   io.on('connection', (socket) => {
     socket.on('join', (token) => {
