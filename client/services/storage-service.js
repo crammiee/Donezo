@@ -14,6 +14,7 @@ export class StorageService {
 
   add(task) {
     const tasks = this.load();
+    if (tasks.length >= 100) throw new Error('Task limit reached. Maximum 100 tasks per account.');
     tasks.push({ ...task, updated_at: new Date().toISOString() });
     this.save(tasks);
   }

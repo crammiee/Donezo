@@ -53,6 +53,16 @@ export async function getTasksSince(userId, since) {
     return result.rows;
 }
 
+const TASK_LIMIT = 100;
+
+async function countActiveTasks(userId) {
+    const result = await query(
+        'SELECT COUNT(*) FROM tasks WHERE user_id = $1 AND deleted_at IS NULL',
+        [userId]
+    );
+    return parseInt(result.rows[0].count, 10);
+}
+
 function isTempId(id) {
     return typeof id === 'string' && id.startsWith('temp_');
 }
@@ -60,6 +70,16 @@ function isTempId(id) {
 export async function processBatch(tasks, userId) {
     const results = [];
     const idMappings = [];
+
+    const newCount = tasks.filter(t => isTempId(t.id) && !t.is_deleted).length;
+    if (newCount > 0) {
+        const current = await countActiveTasks(userId);
+        if (current + newCount > TASK_LIMIT) {
+            const err = new Error(`Task limit reached. Maximum ${TASK_LIMIT} tasks per account.`);
+            err.code = 'TASK_LIMIT_REACHED';
+            throw err;
+        }
+    }
 
     for (const task of tasks) {
         if (task.is_deleted) {

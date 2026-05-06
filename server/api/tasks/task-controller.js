@@ -22,6 +22,9 @@ export async function syncTasks(req, res) {
     broadcastTaskEvent(req.userId, 'tasks:updated', tasks, req.headers['x-socket-id']);
     res.status(200).json({ tasks, idMappings });
   } catch (err) {
+    if (err.code === 'TASK_LIMIT_REACHED') {
+      return res.status(429).json({ error: err.message });
+    }
     console.error(err);
     res.status(500).json({ error: 'Failed to process batch' });
   }

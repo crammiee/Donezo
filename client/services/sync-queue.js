@@ -40,7 +40,10 @@ export class SyncQueue {
         this.markSynced(batchIds);
         return;
       }
-      if (status === 429) { showToast('Too many requests. Please slow down.'); }
+      if (status === 429) {
+        if (data?.error?.startsWith('Task limit')) { showToast(data.error); return; }
+        showToast('Too many requests. Please slow down.');
+      }
       this.startRetryLoop(0);
     } catch (err) {
       if (!(err instanceof TypeError)) console.error('sync error:', err);
@@ -86,7 +89,10 @@ export class SyncQueue {
         this.markSynced(new Set(pending.map((t) => t.id)));
         return;
       }
-      if (status === 429) showToast('Too many requests. Please slow down.');
+      if (status === 429) {
+        if (data?.error?.startsWith('Task limit')) { showToast(data.error); return; }
+        showToast('Too many requests. Please slow down.');
+      }
       await this.retryAttempt(attempt + 1);
     } catch {
       await this.retryAttempt(attempt + 1);

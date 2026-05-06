@@ -1,4 +1,5 @@
 import { Card } from './card.js';
+import { showToast } from '../toast/toast.js';
 
 const COLUMN_ORDER = ['todo', 'doing', 'done'];
 
@@ -91,7 +92,12 @@ export class CardActions {
 
   createCard(data) {
     const task = { id: this.generateId(), ...data, synced: false };
-    this.storage.add(task);
+    try {
+      this.storage.add(task);
+    } catch (err) {
+      showToast(err.message);
+      return null;
+    }
     this.syncQueue.enqueue([task]);
     const card = new Card(task);
     this.assign(card);
