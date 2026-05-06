@@ -1,4 +1,5 @@
 import { login, register } from '../../services/auth-service.js';
+import { API_BASE } from '../../config.js';
 
 const STRENGTH_LEVELS = [
   { width: '0%',   cls: '',                text: '' },
@@ -11,6 +12,24 @@ const STRENGTH_LEVELS = [
 class AuthPage {
   constructor() {
     this.attachListeners();
+    this.checkServer();
+  }
+
+  async checkServer() {
+    try {
+      const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(4000) });
+      if (res.ok) { this.setServerReady(); return; }
+    } catch {}
+    this.setServerWaking();
+    setTimeout(() => this.checkServer(), 3000);
+  }
+
+  setServerWaking() {
+    document.getElementById('WAKEUP_BANNER').classList.remove('auth__wakeup--hidden');
+  }
+
+  setServerReady() {
+    document.getElementById('WAKEUP_BANNER').classList.add('auth__wakeup--hidden');
   }
 
   attachListeners() {
