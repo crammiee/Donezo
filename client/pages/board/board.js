@@ -57,7 +57,10 @@ async function initServices(modal, deleteModal, events, syncQueue) {
 
 async function loadBoard(cardActions, boardDOM, tagFilter, dragDrop, events, storage) {
   const isNewAccount = await fetchAndSyncTasks(storage);
-  if (isNewAccount) new SeedService().seed(storage);
+  if (isNewAccount && !localStorage.getItem('donezo_seeded')) {
+    new SeedService().seed(storage);
+    localStorage.setItem('donezo_seeded', 'true');
+  }
 
   await loadAndRenderTasks(cardActions, boardDOM);
   tagFilter.init();
